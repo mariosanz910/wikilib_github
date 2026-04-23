@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Usuarios - WikiLib</title>
+</head>
+<body>
+
+<div>
+    <a href="/admin/dashboard">Volver al Panel</a>
+</div>
+
+<h1>Gestión de Usuarios</h1>
+
+<!-- Filtro -->
+<form th:action="@{/admin/usuarios}" method="get" style="margin-bottom: 20px;">
+    <label for="rol">Filtrar por rol:</label>
+    <select name="rol" id="rol">
+        <option value="">Todos</option>
+        <option value="USUARIO" th:selected="${filtroRol == 'USUARIO'}">Lector</option>
+        <option value="REDACTOR" th:selected="${filtroRol == 'REDACTOR'}">Redactor</option>
+    </select>
+    <button type="submit">Filtrar</button>
+</form>
+
+<table border="1" cellpadding="10" cellspacing="0" style="width: 100%; text-align: left;">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Usuario</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="user : ${usuarios}">
+            <td th:text="${user.id}"></td>
+            <td th:text="${user.nombreUsuario}"></td>
+            <td th:text="${user.email}"></td>
+            <td th:text="${user.rol}"></td>
+            <td th:text="${user.estado}" th:style="${user.estado.name() == 'INACTIVO' ? 'color: red;' : 'color: green;'}"></td>
+            <td>
+                <form th:if="${user.rol.name() != 'ADMIN'}" th:action="@{/admin/usuarios/{id}/toggle-estado(id=${user.id})}" method="post">
+                    <button type="submit" th:text="${user.estado.name() == 'ACTIVO' ? 'Desactivar' : 'Activar'}"></button>
+                </form>
+                <span th:if="${user.rol.name() == 'ADMIN'}">No modificable</span>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

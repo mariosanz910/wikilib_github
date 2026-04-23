@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - WikiLib</title>
+
+    <!-- Fuente elegante estilo clásico -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f2f5;
+            padding: 20px 0;
+        }
+        .card {
+            width: 400px;
+            padding: 30px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .title { text-align: center; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h4 class="title">WikiLib - Registro</h4>
+
+    <!-- Mensaje de error -->
+    <div th:if="${error}" class="error" th:text="${error}"></div>
+
+    <form th:action="@{/registro}" method="post" th:object="${usuario}">
+
+        <!-- ⭐ TOKEN CSRF ⭐ -->
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+        <!-- NOMBRE DE USUARIO -->
+        <div class="field">
+            <input
+                    class="input-field"
+                    type="text"
+                    th:field="*{nombreUsuario}"
+                    placeholder="Nombre de usuario"
+                    required>
+        </div>
+
+        <!-- EMAIL -->
+        <div class="field">
+            <input
+                    class="input-field"
+                    type="email"
+                    th:field="*{email}"
+                    placeholder="Email"
+                    required>
+        </div>
+
+        <!-- NOMBRE COMPLETO -->
+        <div class="field">
+            <input
+                    class="input-field"
+                    type="text"
+                    th:field="*{nombreCompleto}"
+                    placeholder="Nombre completo (opcional)">
+        </div>
+
+        <!-- CONTRASEÑA -->
+        <div class="field">
+            <input
+                    class="input-field"
+                    type="password"
+                    th:field="*{password}"
+                    placeholder="Contraseña"
+                    required>
+        </div>
+
+        <!-- ROL -->
+        <div class="field">
+            <select class="input-field" th:field="*{rol}">
+                <option value="USUARIO">Usuario (Lector)</option>
+                <option value="REDACTOR">Redactor (Crear contenido)</option>
+            </select>
+        </div>
+
+        <button class="btn" type="submit">Registrarse</button>
+
+    </form>
+
+    <div class="registro-link">
+        <p>¿Ya tienes cuenta? <a th:href="@{/login}">Inicia sesión aquí</a></p>
+    </div>
+</div>
+
+</body>
+</html>

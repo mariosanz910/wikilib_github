@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Redactor - WikiLib</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Panel del Redactor</h1>
+        <div>
+            <a href="/catalogo" class="btn">Ver catálogo</a>
+            <a href="/logout" class="btn btn-danger">Cerrar sesión</a>
+        </div>
+    </div>
+    <p>Bienvenido, <strong sec:authentication="name">Redactor</strong></p>
+
+    <div style="margin-top: 30px;">
+        <div class="header">
+            <h2>Tus Publicaciones</h2>
+            <a href="/redactor/nueva-publicacion" class="btn" style="background-color: #27ae60;">+ Crear nueva publicación</a>
+        </div>
+
+        <div th:if="${publicaciones.isEmpty()}">
+            <p class="alert">No tienes publicaciones aún. ¡Anímate a escribir!</p>
+        </div>
+
+        <table th:unless="${publicaciones.isEmpty()}">
+            <thead>
+                <tr>
+                    <th>Título</th>
+                    <th>Categoría</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="pub : ${publicaciones}">
+                    <td><a th:href="@{/publicacion/{id}(id=${pub.id})}" th:text="${pub.titulo}">Título</a></td>
+                    <td th:text="${pub.categoria != null ? pub.categoria.nombre : '-'}">-</td>
+                    <td th:text="${#temporals.format(pub.fechaCreacion, 'dd/MM/yyyy')}">Fecha</td>
+                    <td>
+                        <a th:href="@{/redactor/editar-publicacion/{id}(id=${pub.id})}" class="btn">Editar</a>
+                        <form th:action="@{/redactor/eliminar-publicacion/{id}(id=${pub.id})}" method="post" style="display:inline;"
+                              onsubmit="return confirm('¿Seguro que quieres eliminar esta publicación?')">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

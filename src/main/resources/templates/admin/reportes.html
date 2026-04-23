@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Revisión de Reportes - WikiLib</title>
+</head>
+<body>
+
+<div>
+    <a href="/admin/dashboard">Volver al Panel</a>
+</div>
+
+<h1>Reportes Pendientes</h1>
+
+<div th:if="${#lists.isEmpty(reportes)}">
+    <p>No hay reportes pendientes.</p>
+</div>
+
+<div th:each="reporte : ${reportes}" style="border: 1px solid #ccc; padding: 15px; margin-bottom: 15px;">
+    <p><strong>Motivo:</strong> <span th:text="${reporte.motivo}"></span></p>
+    <p><strong>Reportado por:</strong> <span th:text="${reporte.usuario.nombreUsuario}"></span> el <span th:text="${#temporals.format(reporte.fechaReporte, 'dd/MM/yyyy HH:mm')}"></span></p>
+    <p>
+        <strong>Publicación reportada:</strong> 
+        <a th:href="@{/publicacion/{id}(id=${reporte.publicacion.id})}" target="_blank" th:text="${reporte.publicacion.titulo}">Ver publicación</a>
+        (Autor: <span th:text="${reporte.publicacion.autor.nombreUsuario}"></span>)
+    </p>
+
+    <div style="margin-top: 10px;">
+        <form th:action="@{/admin/reportes/{id}/resolver(id=${reporte.id})}" method="post" style="display: inline-block; margin-right: 10px;">
+            <input type="hidden" name="accion" value="DESCARTAR">
+            <button type="submit">Descartar (Marcar Resuelto)</button>
+        </form>
+        
+        <form th:action="@{/admin/reportes/{id}/resolver(id=${reporte.id})}" method="post" style="display: inline-block;">
+            <input type="hidden" name="accion" value="ELIMINAR_PUBLICACION">
+            <button type="submit" style="color: red;" onclick="return confirm('¿Seguro que deseas eliminar la publicación?');">
+                Eliminar Publicación y Resolver
+            </button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

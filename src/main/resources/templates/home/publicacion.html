@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${publicacion.titulo}">Publicación - WikiLib</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <a href="/catalogo" class="btn">← Volver al catálogo</a>
+        <h1>WikiLib</h1>
+    </div>
+
+    <div>
+        <h1 th:text="${publicacion.titulo}" style="margin-bottom: 5px;">Título de la publicación</h1>
+        <p style="color: #666; font-size: 0.9em;">
+            <strong>Autor:</strong> <span th:text="${publicacion.autor.nombreUsuario}"></span> | 
+            <strong>Categoría:</strong> <span th:text="${publicacion.categoria != null ? publicacion.categoria.nombre : 'Sin categoría'}"></span> |
+            <strong>Fecha:</strong> <span th:text="${#temporals.format(publicacion.fechaCreacion, 'dd/MM/yyyy')}"></span>
+        </p>
+    </div>
+
+    <div style="margin: 30px 0; font-size: 1.1em;">
+        <p th:text="${publicacion.texto}" style="white-space: pre-wrap;"></p>
+    </div>
+
+    <!-- Interacciones (solo visibles si está logueado) -->
+    <div sec:authorize="isAuthenticated()" class="alert" style="background-color: #f8f9fa; border: 1px solid #ddd;">
+        <h3>Interacciones</h3>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <!-- Likes / Dislikes -->
+            <form th:action="@{/publicacion/{id}/valorar(id=${publicacion.id})}" method="post" style="display: inline;">
+                <input type="hidden" name="esLike" value="true">
+                <button type="submit" class="btn" th:style="${miValoracion == 'LIKE' ? 'background-color: #333;' : ''}">
+                    Like (<span th:text="${likesCount}">0</span>)
+                </button>
+            </form>
+            
+            <form th:action="@{/publicacion/{id}/valorar(id=${publicacion.id})}" method="post" style="display: inline;">
+                <input type="hidden" name="esLike" value="false">
+                <button type="submit" class="btn" th:style="${miValoracion == 'DISLIKE' ? 'background-color: #333;' : ''}">
+                    Dislike (<span th:text="${dislikesCount}">0</span>)
+                </button>
+            </form>
+
+            <!-- Favoritos -->
+            <form th:action="@{/publicacion/{id}/favorito(id=${publicacion.id})}" method="post" style="display: inline;">
+                <button type="submit" class="btn" th:style="${esFavorito ? 'background-color: #333;' : ''}"
+                        th:text="${esFavorito ? 'Quitar de Favoritos' : 'Añadir a Favoritos'}">
+                    Favorito
+                </button>
+            </form>
+
+            <!-- Reportar -->
+            <form th:action="@{/publicacion/{id}/reportar(id=${publicacion.id})}" method="post" style="display: flex; gap: 5px;">
+                <input type="text" name="motivo" placeholder="Motivo reporte..." required style="margin-bottom: 0; width: 150px;">
+                <button type="submit" class="btn btn-danger">Reportar</button>
+            </form>
+            <span th:if="${param.reportado}" class="text-success">Enviado</span>
+        </div>
+    </div>
+
+    <!-- Sección de Comentarios -->
+    <div style="margin-top: 40px;">
+        <h2>Comentarios</h2>
+        
+        <!-- Formulario de nuevo comentario -->
+        <div sec:authorize="isAuthenticated()" style="margin-bottom: 30px;">
+            <form th:action="@{/publicacion/{id}/comentar(id=${publicacion.id})}" method="post" style="padding: 0; background: none;">
+                <textarea name="contenido" rows="3" placeholder="Añade tu comentario..." required></textarea>
+                <button type="submit">Enviar comentario</button>
+            </form>
+        </div>
+        <div sec:authorize="!isAuthenticated()" class="alert alert-success">
+            <p><a href="/login">Inicia sesión</a> para participar en la conversación.</p>
+        </div>
+
+        <!-- Listado de comentarios -->
+        <div th:if="${#lists.isEmpty(comentarios)}">
+            <p style="font-style: italic; color: #888;">No hay comentarios todavía.</p>
+        </div>
+        
+        <div th:each="comentario : ${comentarios}" style="border-left: 4px solid #eee; padding-left: 15px; margin-bottom: 20px;">
+            <p style="margin: 0; font-size: 0.85em; color: #555;">
+                <strong th:text="${comentario.autor.nombreUsuario}">Usuario</strong> · 
+                <span th:text="${#temporals.format(comentario.fechaPublicacion, 'dd/MM/yyyy HH:mm')}">Fecha</span>
+            </p>
+            <p style="margin: 5px 0 0 0; white-space: pre-wrap;" th:text="${comentario.contenido}">Contenido</p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

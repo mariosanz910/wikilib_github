@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Categorías - WikiLib</title>
+</head>
+<body>
+
+<div>
+    <a href="/admin/dashboard">Volver al Panel</a>
+</div>
+
+<h1>Gestión de Categorías</h1>
+
+<div style="margin-bottom: 30px;">
+    <h3>Añadir Nueva Categoría</h3>
+    <form th:action="@{/admin/categorias/nueva}" method="post">
+        <div>
+            <label>Nombre:</label>
+            <input type="text" name="nombre" required>
+        </div>
+        <div style="margin-top: 10px;">
+            <label>Descripción:</label>
+            <textarea name="descripcion"></textarea>
+        </div>
+        <button type="submit" style="margin-top: 10px;">Añadir Categoría</button>
+    </form>
+</div>
+
+<h3>Categorías Existentes</h3>
+<ul>
+    <li th:each="cat : ${categorias}">
+        <strong th:text="${cat.nombre}"></strong> - <span th:text="${cat.descripcion}"></span>
+    </li>
+</ul>
+
+</body>
+</html>

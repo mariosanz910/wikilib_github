@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo - WikiLib</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Catálogo de Publicaciones</h1>
+        <div sec:authorize="isAuthenticated()">
+            <span>Hola, <strong sec:authentication="name"></strong></span>
+            <a sec:authorize="hasRole('REDACTOR')" href="/redactor/panel" class="btn">Mi Panel</a>
+            <a href="/logout" class="btn btn-danger">Cerrar sesión</a>
+        </div>
+        <div sec:authorize="!isAuthenticated()">
+            <a href="/login" class="btn">Iniciar sesión</a>
+            <a href="/registro" class="btn">Registrarse</a>
+        </div>
+    </div>
+
+    <form th:action="@{/catalogo}" method="get">
+        <label for="buscar">Buscar por título:</label>
+        <input type="text" id="buscar" name="buscar" th:value="${buscar}">
+        
+        <label for="categoria">Categoría:</label>
+        <select id="categoria" name="categoria">
+            <option value="">Todas las categorías</option>
+            <option th:each="cat : ${categorias}"
+                    th:value="${cat.id}"
+                    th:text="${cat.nombre}"
+                    th:selected="${cat.id == categoriaSeleccionada}"></option>
+        </select>
+    
+        <button type="submit">Buscar ahora</button>
+    
+        <label sec:authorize="isAuthenticated()" style="display: inline-block; margin-left: 15px;">
+            <input type="checkbox" name="favoritos" th:checked="${favoritosSeleccionado}"> Mis Favoritos
+        </label>
+    
+        <a href="/catalogo" style="margin-left: 15px;">Limpiar filtros</a>
+    </form>
+    
+    <div th:if="${publicaciones.isEmpty()}">
+        <p class="alert alert-error">No se encontraron publicaciones que coincidan con la búsqueda.</p>
+    </div>
+    
+    <div th:unless="${publicaciones.isEmpty()}">
+        <div th:each="pub : ${publicaciones}" class="post-card">
+            <h3><a th:href="@{/publicacion/{id}(id=${pub.id})}" th:text="${pub.titulo}">Título</a></h3>
+            <p><strong>Categoría:</strong> <span th:text="${pub.categoria != null ? pub.categoria.nombre : 'Sin categoría'}"></span></p>
+            <p th:text="${pub.descripcion}">Descripción principal de la publicación.</p>
+            <p><small>Publicado por: <span th:text="${pub.autor.nombreUsuario}">Autor</span></small></p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

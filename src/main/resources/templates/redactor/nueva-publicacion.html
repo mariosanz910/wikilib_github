@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nueva Publicación - WikiLib</title>
+</head>
+<body>
+
+<div>
+    <h2>Crear Nueva Publicación</h2>
+    <a href="/redactor/panel">Volver al panel</a>
+</div>
+
+<hr>
+
+<form th:action="@{/redactor/nueva-publicacion}" method="post">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+    <div>
+        <label for="titulo">Título:</label><br>
+        <input type="text" id="titulo" name="titulo" required maxlength="200" style="width: 100%;">
+    </div>
+    <br>
+
+    <div>
+        <label for="categoriaId">Categoría:</label><br>
+        <select id="categoriaId" name="categoriaId">
+            <option value="">(Sin categoría)</option>
+            <option th:each="cat : ${categorias}"
+                    th:value="${cat.id}"
+                    th:text="${cat.nombre}">Categoría</option>
+        </select>
+    </div>
+    <br>
+
+    <div>
+        <label for="descripcion">Descripción breve:</label><br>
+        <textarea id="descripcion" name="descripcion" rows="3" style="width: 100%;"></textarea>
+    </div>
+    <br>
+
+    <div>
+        <label for="texto">Texto de la publicación:</label><br>
+        <textarea id="texto" name="texto" rows="10" style="width: 100%;"></textarea>
+    </div>
+    <br>
+
+    <button type="submit">Guardar publicación</button>
+</form>
+
+</body>
+</html>
