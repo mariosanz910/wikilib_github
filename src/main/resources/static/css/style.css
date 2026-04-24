@@ -154,3 +154,62 @@ th {
     margin-bottom: 20px;
     background: #f0f0f0;
 }
+
+/* --- RESPONSIVIDAD --- */
+
+/* Media Queries para Tablet (Dispositivos medianos) */
+@media (max-width: 992px) {
+    .container {
+        max-width: 90%;
+        margin: 20px auto;
+        padding: 20px;
+    }
+}
+
+/* Media Queries para Móvil (Dispositivos pequeños) */
+@media (max-width: 600px) {
+    .container {
+        max-width: 100%;
+        margin: 0;
+        padding: 20px 15px;
+        border: none;
+        border-radius: 0;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 15px;
+    }
+
+    form {
+        padding: 20px 15px;
+        max-width: 100%;
+    }
+
+    table {
+        min-width: 500px; /* Asegura que la tabla no se colapse demasiado */
+    }
+
+    th, td {
+        padding: 10px 8px;
+        font-size: 0.9em;
+    }
+
+    h1 { font-size: 1.6em; }
+    h2 { font-size: 1.4em; }
+
+    input[type="text"], 
+    input[type="password"], 
+    input[type="email"], 
+    textarea, 
+    select {
+        padding: 10px;
+    }
+
+    button, .btn {
+        width: 100%; /* Botones de ancho completo en móvil para mejor usabilidad */
+        margin-bottom: 10px;
+    }
+}
