@@ -56,6 +56,18 @@ public class PublicacionService {
         publicacionRepository.deleteById(id);
     }
 
+    @Transactional
+    public void incrementarVisitas(Long id) {
+        publicacionRepository.findById(id).ifPresent(p -> {
+            p.setVisitas(p.getVisitas() + 1);
+            publicacionRepository.save(p);
+        });
+    }
+
+    public List<Publicacion> obtenerTop5Leidas() {
+        return publicacionRepository.findTop5ByOrderByVisitasDesc();
+    }
+
     public List<Publicacion> buscarFavoritos(Usuario usuario) {
         return favoritoRepository.findByUsuario(usuario).stream()
                 .map(com.tfg.wikilib.model.Favorito::getPublicacion)

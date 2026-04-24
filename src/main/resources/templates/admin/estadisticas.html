@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estadísticas Generales - WikiLib</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Estadísticas Generales</h1>
+        <a href="/admin/dashboard" class="btn">Volver al Panel</a>
+    </div>
+
+    <!-- Top Publicaciones -->
+    <div style="margin-bottom: 40px;">
+        <h2>Colecciones más Leídas</h2>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Autor</th>
+                        <th>Vistas</th>
+                        <th>Valoración</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="pub : ${topPublicaciones}">
+                        <td th:text="${pub.titulo}"></td>
+                        <td th:text="${pub.autor.nombreUsuario}"></td>
+                        <td th:text="${pub.visitas}"></td>
+                        <td th:text="${pub.valoracion}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Top Redactores -->
+    <div style="margin-bottom: 40px;">
+        <h2>Redactores más Activos</h2>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Redactor</th>
+                        <th>Nombre Completo</th>
+                        <th>Publicaciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item : ${topRedactores}">
+                        <td th:text="${item[0].nombreUsuario}"></td>
+                        <td th:text="${item[0].nombreCompleto}"></td>
+                        <td th:text="${item[1]}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Top Categorías -->
+    <div style="margin-bottom: 40px;">
+        <h2>Categorías más Populares</h2>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Categoría</th>
+                        <th>Total Publicaciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item : ${topCategorias}">
+                        <td th:text="${item[0].nombre}"></td>
+                        <td th:text="${item[1]}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

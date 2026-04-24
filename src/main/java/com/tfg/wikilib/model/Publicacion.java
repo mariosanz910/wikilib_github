@@ -41,6 +41,10 @@ public class Publicacion {
     @Builder.Default
     private int valoracion = 0;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private int visitas = 0;
+
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario autor;

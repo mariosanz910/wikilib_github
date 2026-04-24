@@ -21,4 +21,7 @@ public interface PublicacionRepository extends JpaRepository<Publicacion, Long> 
 
     // Publicaciones de un autor concreto (para el panel del redactor)
     List<Publicacion> findByAutorOrderByFechaCreacionDesc(Usuario autor);
+
+    // Estadísticas
+    List<Publicacion> findTop5ByOrderByVisitasDesc();
 }

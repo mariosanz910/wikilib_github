@@ -103,4 +103,13 @@ public class AdminController {
         categoriaRepository.save(cat);
         return "redirect:/admin/categorias";
     }
+
+    // ================== ESTADÍSTICAS ==================
+    @GetMapping("/estadisticas")
+    public String estadisticas(Model model) {
+        model.addAttribute("topPublicaciones", publicacionService.obtenerTop5Leidas());
+        model.addAttribute("topRedactores", usuarioService.obtenerRedactoresMasActivos());
+        model.addAttribute("topCategorias", categoriaRepository.findMostPopularCategories());
+        return "admin/estadisticas";
+    }
 }

@@ -60,4 +60,8 @@ public class UsuarioService {
     public java.util.List<Usuario> obtenerTodos() {
         return usuarioRepository.findAll();
     }
-}
+
+    public java.util.List<Object[]> obtenerRedactoresMasActivos() {
+        return usuarioRepository.findMostActiveWriters();
+    }
+}

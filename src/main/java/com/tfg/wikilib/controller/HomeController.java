@@ -73,6 +73,7 @@ public class HomeController {
     // Ver el detalle de una publicación concreta
     @GetMapping("/publicacion/{id}")
     public String verPublicacion(@PathVariable Long id, org.springframework.security.core.Authentication authentication, Model model) {
+        publicacionService.incrementarVisitas(id);
         Publicacion publicacion = publicacionService.buscarPorId(id);
         model.addAttribute("publicacion", publicacion);
         
