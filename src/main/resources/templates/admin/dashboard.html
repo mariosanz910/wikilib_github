@@ -6,31 +6,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Admin - WikiLib</title>
-
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 
-<div class="header">
-    <h1>Panel de Administración</h1>
-    <p>Bienvenido, <strong sec:authentication="name">Admin</strong>
-        <span class="badge">ADMIN</span></p>
-</div>
+<div class="container">
+    <div class="header">
+        <h1>Panel de Administración</h1>
+        <div>
+            <span>Hola, <strong sec:authentication="name">Admin</strong></span>
+            <a href="/logout" class="btn btn-danger">Cerrar sesión</a>
+        </div>
+    </div>
 
-<div class="info">
-    <h2>Estado del Proyecto</h2>
-    <p><strong>Fase 1:</strong> Base de datos y sistema de autenticación - COMPLETADA</p>
-</div>
+    <div class="alert">
+        <h2>Estado del Proyecto</h2>
+        <p><strong>Fase Actual:</strong> Desarrollo de Funcionalidades Administrativas y Reportes.</p>
+    </div>
 
-<div class="info">
-    <h2>Funcionalidades del Admin</h2>
-    <ul>
-        <li><a href="/admin/usuarios">Gestionar Usuarios</a></li>
-        <li><a href="/admin/reportes">Revisar Reportes Pendientes</a></li>
-        <li><a href="/admin/categorias">Gestionar Categorías</a></li>
-    </ul>
-
-    <a href="/login" class="logout-btn">Cerrar sesión</a>
+    <div>
+        <h2>Funcionalidades del Admin</h2>
+        <ul style="list-style: none; padding: 0;">
+            <li style="margin-bottom: 10px;"><a href="/admin/usuarios" class="btn" style="width: 100%; display: block;">Gestionar Usuarios</a></li>
+            <li style="margin-bottom: 10px;"><a href="/admin/reportes" class="btn" style="width: 100%; display: block;">Revisar Reportes Pendientes</a></li>
+            <li style="margin-bottom: 10px;"><a href="/admin/categorias" class="btn" style="width: 100%; display: block;">Gestionar Categorías</a></li>
+            <li style="margin-bottom: 10px;"><a href="/catalogo" class="btn btn-danger" style="width: 100%; display: block;">Volver al Catálogo</a></li>
+        </ul>
+    </div>
 </div>
 
 </body>
-</html>
+</html>

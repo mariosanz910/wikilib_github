@@ -4,50 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nueva Publicación - WikiLib</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 
-<div>
-    <h2>Crear Nueva Publicación</h2>
-    <a href="/redactor/panel">Volver al panel</a>
+<div class="container">
+    <div class="header">
+        <h1>Crear Nueva Publicación</h1>
+        <a href="/redactor/panel" class="btn">Volver al panel</a>
+    </div>
+
+    <form th:action="@{/redactor/nueva-publicacion}" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+        <div>
+            <label for="titulo">Título:</label>
+            <input type="text" id="titulo" name="titulo" required maxlength="200">
+        </div>
+
+        <div>
+            <label for="categoriaId">Categoría:</label>
+            <select id="categoriaId" name="categoriaId">
+                <option value="">(Sin categoría)</option>
+                <option th:each="cat : ${categorias}"
+                        th:value="${cat.id}"
+                        th:text="${cat.nombre}">Categoría</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="descripcion">Descripción breve:</label>
+            <textarea id="descripcion" name="descripcion" rows="3"></textarea>
+        </div>
+
+        <div>
+            <label for="texto">Texto de la publicación:</label>
+            <textarea id="texto" name="texto" rows="10"></textarea>
+        </div>
+
+        <button type="submit">Guardar publicación</button>
+    </form>
 </div>
-
-<hr>
-
-<form th:action="@{/redactor/nueva-publicacion}" method="post">
-    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-
-    <div>
-        <label for="titulo">Título:</label><br>
-        <input type="text" id="titulo" name="titulo" required maxlength="200" style="width: 100%;">
-    </div>
-    <br>
-
-    <div>
-        <label for="categoriaId">Categoría:</label><br>
-        <select id="categoriaId" name="categoriaId">
-            <option value="">(Sin categoría)</option>
-            <option th:each="cat : ${categorias}"
-                    th:value="${cat.id}"
-                    th:text="${cat.nombre}">Categoría</option>
-        </select>
-    </div>
-    <br>
-
-    <div>
-        <label for="descripcion">Descripción breve:</label><br>
-        <textarea id="descripcion" name="descripcion" rows="3" style="width: 100%;"></textarea>
-    </div>
-    <br>
-
-    <div>
-        <label for="texto">Texto de la publicación:</label><br>
-        <textarea id="texto" name="texto" rows="10" style="width: 100%;"></textarea>
-    </div>
-    <br>
-
-    <button type="submit">Guardar publicación</button>
-</form>
 
 </body>
 </html>
+
