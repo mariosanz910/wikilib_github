@@ -51,7 +51,7 @@ public class HomeController {
 
         List<Publicacion> publicaciones;
 
-        if (favoritos && authentication != null && authentication.isAuthenticated() && !authentication.getName().equals("anonymousUser")) {
+        if (favoritos) {
             com.tfg.wikilib.model.Usuario usuario = usuarioService.buscarPorNombreUsuario(authentication.getName());
             publicaciones = publicacionService.buscarFavoritos(usuario);
             model.addAttribute("favoritosSeleccionado", true);
@@ -87,17 +87,15 @@ public class HomeController {
         model.addAttribute("likesCount", likes);
         model.addAttribute("dislikesCount", dislikes);
         
-        // Comprobar interacción del usuario si está logueado
-        if (authentication != null && authentication.isAuthenticated() && !authentication.getName().equals("anonymousUser")) {
-            com.tfg.wikilib.model.Usuario usuario = usuarioService.buscarPorNombreUsuario(authentication.getName());
-            
-            valoracionRepository.findByUsuarioAndPublicacion(usuario, publicacion).ifPresent(val -> {
-                model.addAttribute("miValoracion", val.getTipo().name());
-            });
-            
-            boolean esFavorito = favoritoRepository.findByUsuarioAndPublicacion(usuario, publicacion).isPresent();
-            model.addAttribute("esFavorito", esFavorito);
-        }
+        // Comprobar interacción del usuario
+        com.tfg.wikilib.model.Usuario usuario = usuarioService.buscarPorNombreUsuario(authentication.getName());
+        
+        valoracionRepository.findByUsuarioAndPublicacion(usuario, publicacion).ifPresent(val -> {
+            model.addAttribute("miValoracion", val.getTipo().name());
+        });
+        
+        boolean esFavorito = favoritoRepository.findByUsuarioAndPublicacion(usuario, publicacion).isPresent();
+        model.addAttribute("esFavorito", esFavorito);
         
         return "home/publicacion";
     }

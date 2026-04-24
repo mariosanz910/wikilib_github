@@ -27,8 +27,8 @@
         <p th:text="${publicacion.texto}" style="white-space: pre-wrap;"></p>
     </div>
 
-    <!-- Interacciones (solo visibles si está logueado) -->
-    <div sec:authorize="isAuthenticated()" class="alert" style="background-color: #f8f9fa; border: 1px solid #ddd;">
+    <!-- Interacciones -->
+    <div class="alert" style="background-color: #f8f9fa; border: 1px solid #ddd;">
         <h3>Interacciones</h3>
         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
             <!-- Likes / Dislikes -->
@@ -68,14 +68,11 @@
         <h2>Comentarios</h2>
         
         <!-- Formulario de nuevo comentario -->
-        <div sec:authorize="isAuthenticated()" style="margin-bottom: 30px;">
+        <div style="margin-bottom: 30px;">
             <form th:action="@{/publicacion/{id}/comentar(id=${publicacion.id})}" method="post" style="padding: 0; background: none;">
                 <textarea name="contenido" rows="3" placeholder="Añade tu comentario..." required></textarea>
                 <button type="submit">Enviar comentario</button>
             </form>
-        </div>
-        <div sec:authorize="!isAuthenticated()" class="alert alert-success">
-            <p><a href="/login">Inicia sesión</a> para participar en la conversación.</p>
         </div>
 
         <!-- Listado de comentarios -->

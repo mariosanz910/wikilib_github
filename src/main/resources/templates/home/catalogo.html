@@ -13,14 +13,10 @@
 <div class="container">
     <div class="header">
         <h1>Catálogo de Publicaciones</h1>
-        <div sec:authorize="isAuthenticated()">
+        <div>
             <span>Hola, <strong sec:authentication="name"></strong></span>
             <a sec:authorize="hasRole('REDACTOR')" href="/redactor/panel" class="btn">Mi Panel</a>
             <a href="/logout" class="btn btn-danger">Cerrar sesión</a>
-        </div>
-        <div sec:authorize="!isAuthenticated()">
-            <a href="/login" class="btn">Iniciar sesión</a>
-            <a href="/registro" class="btn">Registrarse</a>
         </div>
     </div>
 
@@ -39,7 +35,7 @@
     
         <button type="submit">Buscar ahora</button>
     
-        <label sec:authorize="isAuthenticated()" style="display: inline-block; margin-left: 15px;">
+        <label style="display: inline-block; margin-left: 15px;">
             <input type="checkbox" name="favoritos" th:checked="${favoritosSeleccionado}"> Mis Favoritos
         </label>
     
