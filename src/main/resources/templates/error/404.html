@@ -1,22 +1,44 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Página no encontrada - 404</title>
+
+    <!-- Fuente elegante estilo clásico -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f2f5;
+            margin: 0;
+        }
+        .card {
+            width: 400px;
+            padding: 40px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .title { margin-bottom: 20px; color: #d32f2f; }
+        .message { margin-bottom: 30px; line-height: 1.6; }
+    </style>
 </head>
+<body>
 
-<body style="text-align: center; margin-top: 50px;">
-
-    <h1>Error 404</h1>
-    <h2>Oops, la página que buscas no existe.</h2>
-    <p>Es posible que el enlace esté roto o que hayas escrito mal la dirección.</p>
-
-    <div style="margin-top: 30px;">
-        <a href="/catalogo">Volver al catálogo</a>
-    </div>
+<div class="card">
+    <h1 class="title">Error 404</h1>
+    <h2>Oops, página no encontrada</h2>
+    <p class="message">Es posible que el enlace esté roto o que hayas escrito mal la dirección.</p>
+    
+    <a th:href="@{/catalogo}" class="btn">Volver al catálogo</a>
+</div>
 
 </body>
-
 </html>

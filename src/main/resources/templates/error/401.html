@@ -4,21 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>No Autorizado - WikiLib</title>
+
+    <!-- Fuente elegante estilo clásico -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <style>
-        body { display: flex; justify-content: center; align-items: center; height: 100vh; text-align: center; }
-        .container { max-width: 500px; padding: 40px; }
-        h1 { color: #ffc107; font-size: 5rem; margin: 0; }
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f2f5;
+            margin: 0;
+        }
+        .card {
+            width: 400px;
+            padding: 40px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .title { margin-bottom: 20px; color: #ffc107; }
+        .message { margin-bottom: 30px; line-height: 1.6; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>401</h1>
-        <h2>No Autorizado</h2>
-        <p>Lo sentimos, no tienes permiso para acceder a esta página o necesitas iniciar sesión.</p>
-        <a href="/login" class="btn">Iniciar Sesión</a>
-        <br>
-        <a href="/" style="display: inline-block; margin-top: 10px; color: #666;">Volver al Inicio</a>
-    </div>
+
+<div class="card">
+    <h1 class="title">401</h1>
+    <h2>No Autorizado</h2>
+    <p class="message">Lo sentimos, no tienes permiso para acceder a esta página o necesitas iniciar sesión.</p>
+    
+    <a th:href="@{/login}" class="btn">Iniciar Sesión</a>
+    <br>
+    <a th:href="@{/}" style="display: inline-block; margin-top: 15px; color: #666; text-decoration: none;">Volver al Inicio</a>
+</div>
+
 </body>
 </html>
+
