@@ -1,6 +1,6 @@
-DROP DATABASE IF EXISTS wikilib;
-CREATE DATABASE wikilib;
-USE wikilib;
+DROP DATABASE IF EXISTS defaultdb;
+CREATE DATABASE defaultdb;
+USE defaultdb;
 
 -- Tabla de Usuarios
 CREATE TABLE usuario (
