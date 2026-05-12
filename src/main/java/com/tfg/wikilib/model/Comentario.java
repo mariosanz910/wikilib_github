@@ -16,12 +16,9 @@ public class Comentario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 1000)
     private String contenido;
 
-    @Column(nullable = false)
-    @Builder.Default
-    private int valoracion = 0;
 
     @Column(name = "fecha_creacion", nullable = false, updatable = false)
     @Builder.Default

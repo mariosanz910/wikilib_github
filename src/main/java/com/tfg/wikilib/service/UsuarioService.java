@@ -22,6 +22,15 @@ public class UsuarioService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + nombreUsuario));
     }
 
+    public Usuario buscarPorId(Long id) {
+        return usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + id));
+    }
+
+    public java.util.List<Usuario> buscarPorRol(Usuario.Rol rol) {
+        return usuarioRepository.findByRol(rol);
+    }
+
     public Usuario buscarPorEmail(String email) {
         return usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Email no encontrado: " + email));

@@ -31,3 +31,12 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Credenciales / Secretos ###
+.env
+*.env
+.env.local
+
+### Perfil local de Spring (credenciales reales) ###
+application-local.properties
+src/main/resources/application-local.properties

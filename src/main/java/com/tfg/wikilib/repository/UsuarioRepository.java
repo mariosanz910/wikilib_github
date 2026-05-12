@@ -19,6 +19,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     boolean existsByEmail(String email);
 
+    java.util.List<Usuario> findByRol(Usuario.Rol rol);
+
     @Query("SELECT u, COUNT(p) as total FROM Usuario u JOIN Publicacion p ON p.autor = u GROUP BY u ORDER BY total DESC")
     List<Object[]> findMostActiveWriters();
 }

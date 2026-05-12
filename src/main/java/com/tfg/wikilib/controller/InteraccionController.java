@@ -6,6 +6,7 @@ import com.tfg.wikilib.service.PublicacionService;
 import com.tfg.wikilib.service.UsuarioService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -55,6 +56,7 @@ public class InteraccionController {
     }
 
     @PostMapping("/valorar")
+    @Transactional
     public String valorar(@PathVariable Long id, @RequestParam boolean esLike, Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) return "redirect:/login";
         

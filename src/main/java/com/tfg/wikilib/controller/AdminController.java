@@ -8,6 +8,7 @@ import com.tfg.wikilib.repository.ReporteRepository;
 import com.tfg.wikilib.service.PublicacionService;
 import com.tfg.wikilib.service.UsuarioService;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,8 +33,6 @@ public class AdminController {
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
-        // Cargar estadísticas básicas para el dashboard si es necesario
-        // En la fase 4 se harán estadísticas completas. De momento, enlaces a secciones.
         return "admin/dashboard";
     }
 
@@ -41,9 +40,12 @@ public class AdminController {
     @GetMapping("/usuarios")
     public String gestionarUsuarios(@RequestParam(required = false) String rol, Model model) {
         if (rol != null && !rol.isEmpty()) {
-            // Filtrado muy básico. Si la BBDD crece, mejor hacer un query en el repository.
-            model.addAttribute("usuarios", usuarioService.obtenerTodos().stream()
-                    .filter(u -> u.getRol().name().equalsIgnoreCase(rol)).toList());
+            try {
+                Usuario.Rol rolEnum = Usuario.Rol.valueOf(rol.toUpperCase());
+                model.addAttribute("usuarios", usuarioService.buscarPorRol(rolEnum));
+            } catch (IllegalArgumentException e) {
+                model.addAttribute("usuarios", usuarioService.obtenerTodos());
+            }
         } else {
             model.addAttribute("usuarios", usuarioService.obtenerTodos());
         }
@@ -52,10 +54,10 @@ public class AdminController {
     }
 
     @PostMapping("/usuarios/{id}/toggle-estado")
+    @Transactional
     public String toggleEstadoUsuario(@PathVariable Long id) {
-        // Método en servicio para cambiar estado activo/inactivo (podemos buscarlo y cambiarlo aquí)
-        Usuario usuario = usuarioService.obtenerTodos().stream().filter(u -> u.getId().equals(id)).findFirst().orElse(null);
-        if (usuario != null && usuario.getRol() != Usuario.Rol.ADMIN) { // No banear a otros admins
+        Usuario usuario = usuarioService.buscarPorId(id);
+        if (usuario.getRol() != Usuario.Rol.ADMIN) { // No banear a otros admins
             if (usuario.getEstado() == Usuario.Estado.ACTIVO) {
                 usuario.setEstado(Usuario.Estado.INACTIVO);
             } else {
@@ -74,14 +76,17 @@ public class AdminController {
     }
 
     @PostMapping("/reportes/{id}/resolver")
+    @Transactional
     public String resolverReporte(@PathVariable Long id, @RequestParam String accion) {
         Reporte reporte = reporteRepository.findById(id).orElse(null);
-        if (reporte != null) {
-            if ("ELIMINAR_PUBLICACION".equals(accion)) {
-                publicacionService.eliminar(reporte.getPublicacion().getId());
-                // Los reportes en cascada deberían borrarse si la BD está configurada,
-                // si no, los marcamos como resueltos.
-            }
+        if (reporte == null) return "redirect:/admin/reportes";
+
+        if ("ELIMINAR_PUBLICACION".equals(accion)) {
+            // Al eliminar la publicación, el reporte se borra en cascada (ON DELETE CASCADE).
+            // No intentamos modificar el reporte después de borrar su publicación.
+            publicacionService.eliminar(reporte.getPublicacion().getId());
+        } else {
+            // DESCARTAR: marcar el reporte como resuelto sin tocar la publicación
             reporte.setResuelto(true);
             reporteRepository.save(reporte);
         }

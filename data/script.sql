@@ -51,10 +51,9 @@ CREATE TABLE valoracion (
 -- Tabla de Comentarios (comentarios en una entrada)
 CREATE TABLE comentario (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    contenido VARCHAR(100) NOT NULL,
+    contenido VARCHAR(1000) NOT NULL,
     usuario_id BIGINT NOT NULL,
     entrada_id BIGINT NOT NULL,
-    valoracion INT NOT NULL DEFAULT 0,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE,
     FOREIGN KEY (entrada_id) REFERENCES entrada(id) ON DELETE CASCADE
@@ -83,17 +82,6 @@ CREATE TABLE reporte (
     FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE
 );
 
--- Tabla de Valoraciones de Comentarios (un voto por usuario por comentario)
-CREATE TABLE valoracion_comentario (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    comentario_id BIGINT NOT NULL,
-    usuario_id BIGINT NOT NULL,
-    tipo ENUM('LIKE', 'DISLIKE') NOT NULL,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE (comentario_id, usuario_id),
-    FOREIGN KEY (comentario_id) REFERENCES comentario(id) ON DELETE CASCADE,
-    FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE
-);
 
 -- Categorías predefinidas ordenadas alfabéticamente
 INSERT INTO categoria (nombre, descripcion) VALUES
