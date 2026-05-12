@@ -82,9 +82,14 @@ public class AdminController {
         if (reporte == null) return "redirect:/admin/reportes";
 
         if ("ELIMINAR_PUBLICACION".equals(accion)) {
-            // Al eliminar la publicación, el reporte se borra en cascada (ON DELETE CASCADE).
-            // No intentamos modificar el reporte después de borrar su publicación.
-            publicacionService.eliminar(reporte.getPublicacion().getId());
+            Long publicacionId = reporte.getPublicacion().getId();
+            // Primero eliminamos el reporte a través de JPA para sacarlo de la sesión Hibernate.
+            // Si no lo hacemos, al borrar la publicación la BD elimina el reporte en cascada
+            // pero Hibernate sigue teniendo el objeto en caché → error 500 al hacer flush.
+            reporteRepository.delete(reporte);
+            // Ahora sí eliminamos la publicación; el resto de datos (comentarios, valoraciones,
+            // favoritos) los gestiona el ON DELETE CASCADE de la BD.
+            publicacionService.eliminar(publicacionId);
         } else {
             // DESCARTAR: marcar el reporte como resuelto sin tocar la publicación
             reporte.setResuelto(true);
