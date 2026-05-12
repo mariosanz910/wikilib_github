@@ -36,6 +36,7 @@ build/
 .env
 *.env
 .env.local
+.env.example
 
 ### Perfil local de Spring (credenciales reales) ###
 application-local.properties
