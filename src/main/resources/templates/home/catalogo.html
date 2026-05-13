@@ -7,6 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catálogo - WikiLib</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    
+    <!-- Google Ads Head -->
+    <div th:insert="fragments/google-ads-head.html"></div>
 </head>
 <body>
 
@@ -41,6 +44,19 @@
     
         <a href="/catalogo" style="margin-left: 15px;">Limpiar filtros</a>
     </form>
+
+    <!-- ANUNCIO 1: Banner superior -->
+    <div style="margin: 20px 0; text-align: center;">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-7609904183171771"
+             data-ad-slot="1234567890"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
     
     <div th:if="${publicaciones.isEmpty()}">
         <p class="alert alert-error">No se encontraron publicaciones que coincidan con la búsqueda.</p>
@@ -53,6 +69,19 @@
             <p th:text="${pub.descripcion}">Descripción principal de la publicación.</p>
             <p><small>Publicado por: <span th:text="${pub.autor.nombreUsuario}">Autor</span></small></p>
         </div>
+    </div>
+
+    <!-- ANUNCIO 2: Al final -->
+    <div style="margin: 40px 0; text-align: center;">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-7609904183171771"
+             data-ad-slot="9876543210"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
     </div>
 </div>
 
