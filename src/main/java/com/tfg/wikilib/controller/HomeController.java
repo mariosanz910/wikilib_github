@@ -3,12 +3,7 @@ package com.tfg.wikilib.controller;
 import com.tfg.wikilib.model.Publicacion;
 import com.tfg.wikilib.model.TipoValoracion;
 import com.tfg.wikilib.model.Usuario;
-import com.tfg.wikilib.repository.CategoriaRepository;
-import com.tfg.wikilib.repository.ComentarioRepository;
-import com.tfg.wikilib.repository.FavoritoRepository;
-import com.tfg.wikilib.repository.ValoracionRepository;
-import com.tfg.wikilib.service.PublicacionService;
-import com.tfg.wikilib.service.UsuarioService;
+import com.tfg.wikilib.service.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,23 +15,23 @@ import java.util.List;
 public class HomeController {
 
     private final PublicacionService publicacionService;
-    private final CategoriaRepository categoriaRepository;
-    private final ComentarioRepository comentarioRepository;
-    private final ValoracionRepository valoracionRepository;
-    private final FavoritoRepository favoritoRepository;
+    private final CategoriaService categoriaService;
+    private final ComentarioService comentarioService;
+    private final ValoracionService valoracionService;
+    private final FavoritoService favoritoService;
     private final UsuarioService usuarioService;
 
     public HomeController(PublicacionService publicacionService,
-                          CategoriaRepository categoriaRepository,
-                          ComentarioRepository comentarioRepository,
-                          ValoracionRepository valoracionRepository,
-                          FavoritoRepository favoritoRepository,
+                          CategoriaService categoriaService,
+                          ComentarioService comentarioService,
+                          ValoracionService valoracionService,
+                          FavoritoService favoritoService,
                           UsuarioService usuarioService) {
         this.publicacionService = publicacionService;
-        this.categoriaRepository = categoriaRepository;
-        this.comentarioRepository = comentarioRepository;
-        this.valoracionRepository = valoracionRepository;
-        this.favoritoRepository = favoritoRepository;
+        this.categoriaService = categoriaService;
+        this.comentarioService = comentarioService;
+        this.valoracionService = valoracionService;
+        this.favoritoService = favoritoService;
         this.usuarioService = usuarioService;
     }
 
@@ -71,7 +66,7 @@ public class HomeController {
         }
 
         model.addAttribute("publicaciones", publicaciones);
-        model.addAttribute("categorias", categoriaRepository.findAll());
+        model.addAttribute("categorias", categoriaService.obtenerTodas());
         return "home/catalogo";
     }
 
@@ -83,11 +78,11 @@ public class HomeController {
         model.addAttribute("publicacion", publicacion);
 
         // Comentarios ordenados del más reciente al más antiguo
-        model.addAttribute("comentarios", comentarioRepository.findByPublicacionOrderByFechaPublicacionDesc(publicacion));
+        model.addAttribute("comentarios", comentarioService.obtenerPorPublicacion(publicacion));
 
         // Conteo de likes y dislikes calculado desde la tabla real (no el campo denormalizado)
-        long likes = valoracionRepository.countByPublicacionAndTipo(publicacion, TipoValoracion.LIKE);
-        long dislikes = valoracionRepository.countByPublicacionAndTipo(publicacion, TipoValoracion.DISLIKE);
+        long likes = valoracionService.contarPorPublicacionYTipo(publicacion, TipoValoracion.LIKE);
+        long dislikes = valoracionService.contarPorPublicacionYTipo(publicacion, TipoValoracion.DISLIKE);
         model.addAttribute("likesCount", likes);
         model.addAttribute("dislikesCount", dislikes);
 
@@ -95,11 +90,11 @@ public class HomeController {
         if (authentication != null && authentication.isAuthenticated()) {
             Usuario usuario = usuarioService.buscarPorNombreUsuario(authentication.getName());
 
-            valoracionRepository.findByUsuarioAndPublicacion(usuario, publicacion).ifPresent(val ->
+            valoracionService.obtenerMiValoracion(usuario, publicacion).ifPresent(val ->
                 model.addAttribute("miValoracion", val.getTipo().name())
             );
 
-            boolean esFavorito = favoritoRepository.findByUsuarioAndPublicacion(usuario, publicacion).isPresent();
+            boolean esFavorito = favoritoService.esFavorito(usuario, publicacion);
             model.addAttribute("esFavorito", esFavorito);
         }
 

@@ -1,6 +1,8 @@
 package com.tfg.wikilib.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import java.time.LocalDateTime;
 
@@ -16,6 +18,8 @@ public class Reporte {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "El motivo del reporte es obligatorio")
+    @Size(max = 255, message = "El motivo no puede exceder los 255 caracteres")
     @Column(nullable = false, length = 255)
     private String motivo;
 

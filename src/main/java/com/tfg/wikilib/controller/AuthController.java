@@ -4,7 +4,9 @@ import com.tfg.wikilib.model.Usuario;
 import com.tfg.wikilib.service.UsuarioService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 @Controller
 public class AuthController {
@@ -30,8 +32,13 @@ public class AuthController {
 
     // Procesar registro
     @PostMapping("/registro")
-    public String registrarUsuario(@ModelAttribute Usuario usuario,
+    public String registrarUsuario(@Valid @ModelAttribute Usuario usuario,
+                                   BindingResult bindingResult,
                                    Model model) {
+        if (bindingResult.hasErrors()) {
+            return "auth/registro";
+        }
+        
         try {
             usuarioService.registrarUsuario(usuario);
             // Redirigir al login después del registro

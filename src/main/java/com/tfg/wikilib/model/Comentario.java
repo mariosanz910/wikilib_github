@@ -1,6 +1,8 @@
 package com.tfg.wikilib.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import java.time.LocalDateTime;
 
@@ -16,6 +18,8 @@ public class Comentario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "El comentario no puede estar vacío")
+    @Size(max = 1000, message = "El comentario no puede exceder los 1000 caracteres")
     @Column(nullable = false, length = 1000)
     private String contenido;
 

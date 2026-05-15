@@ -3,31 +3,35 @@ package com.tfg.wikilib.controller;
 import com.tfg.wikilib.model.Categoria;
 import com.tfg.wikilib.model.Reporte;
 import com.tfg.wikilib.model.Usuario;
-import com.tfg.wikilib.repository.CategoriaRepository;
-import com.tfg.wikilib.repository.ReporteRepository;
+import com.tfg.wikilib.service.CategoriaService;
+import com.tfg.wikilib.service.ReporteService;
 import com.tfg.wikilib.service.PublicacionService;
 import com.tfg.wikilib.service.UsuarioService;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Controller
 @RequestMapping("/admin")
+@Validated
 public class AdminController {
 
     private final UsuarioService usuarioService;
-    private final ReporteRepository reporteRepository;
-    private final CategoriaRepository categoriaRepository;
+    private final ReporteService reporteService;
+    private final CategoriaService categoriaService;
     private final PublicacionService publicacionService;
 
     public AdminController(UsuarioService usuarioService,
-                           ReporteRepository reporteRepository,
-                           CategoriaRepository categoriaRepository,
+                           ReporteService reporteService,
+                           CategoriaService categoriaService,
                            PublicacionService publicacionService) {
         this.usuarioService = usuarioService;
-        this.reporteRepository = reporteRepository;
-        this.categoriaRepository = categoriaRepository;
+        this.reporteService = reporteService;
+        this.categoriaService = categoriaService;
         this.publicacionService = publicacionService;
     }
 
@@ -71,46 +75,30 @@ public class AdminController {
     // ================== GESTIÓN DE REPORTES ==================
     @GetMapping("/reportes")
     public String gestionarReportes(Model model) {
-        model.addAttribute("reportes", reporteRepository.findByResueltoFalseOrderByFechaReporteDesc());
+        model.addAttribute("reportes", reporteService.obtenerPendientes());
         return "admin/reportes";
     }
 
     @PostMapping("/reportes/{id}/resolver")
-    @Transactional
     public String resolverReporte(@PathVariable Long id, @RequestParam String accion) {
-        Reporte reporte = reporteRepository.findById(id).orElse(null);
-        if (reporte == null) return "redirect:/admin/reportes";
-
-        if ("ELIMINAR_PUBLICACION".equals(accion)) {
-            Long publicacionId = reporte.getPublicacion().getId();
-            // Primero eliminamos el reporte a través de JPA para sacarlo de la sesión Hibernate.
-            // Si no lo hacemos, al borrar la publicación la BD elimina el reporte en cascada
-            // pero Hibernate sigue teniendo el objeto en caché → error 500 al hacer flush.
-            reporteRepository.delete(reporte);
-            // Ahora sí eliminamos la publicación; el resto de datos (comentarios, valoraciones,
-            // favoritos) los gestiona el ON DELETE CASCADE de la BD.
-            publicacionService.eliminar(publicacionId);
-        } else {
-            // DESCARTAR: marcar el reporte como resuelto sin tocar la publicación
-            reporte.setResuelto(true);
-            reporteRepository.save(reporte);
-        }
+        reporteService.resolverReporte(id, accion);
         return "redirect:/admin/reportes";
     }
 
     // ================== GESTIÓN DE CATEGORÍAS ==================
     @GetMapping("/categorias")
     public String gestionarCategorias(Model model) {
-        model.addAttribute("categorias", categoriaRepository.findAll());
+        model.addAttribute("categorias", categoriaService.obtenerTodas());
         return "admin/categorias";
     }
 
     @PostMapping("/categorias/nueva")
-    public String nuevaCategoria(@RequestParam String nombre, @RequestParam(required = false) String descripcion) {
+    public String nuevaCategoria(@RequestParam @NotBlank(message = "El nombre es obligatorio") @Size(max = 100) String nombre, 
+                                 @RequestParam(required = false) String descripcion) {
         Categoria cat = new Categoria();
         cat.setNombre(nombre);
         cat.setDescripcion(descripcion);
-        categoriaRepository.save(cat);
+        categoriaService.guardar(cat);
         return "redirect:/admin/categorias";
     }
 
@@ -119,7 +107,7 @@ public class AdminController {
     public String estadisticas(Model model) {
         model.addAttribute("topPublicaciones", publicacionService.obtenerTop5Leidas());
         model.addAttribute("topRedactores", usuarioService.obtenerRedactoresMasActivos());
-        model.addAttribute("topCategorias", categoriaRepository.findMostPopularCategories());
+        model.addAttribute("topCategorias", categoriaService.obtenerCategoriasPopulares());
         return "admin/estadisticas";
     }
 }

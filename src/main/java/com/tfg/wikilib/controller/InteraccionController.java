@@ -1,9 +1,7 @@
 package com.tfg.wikilib.controller;
 
 import com.tfg.wikilib.model.*;
-import com.tfg.wikilib.repository.*;
-import com.tfg.wikilib.service.PublicacionService;
-import com.tfg.wikilib.service.UsuarioService;
+import com.tfg.wikilib.service.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,23 +13,23 @@ import java.time.LocalDateTime;
 @RequestMapping("/publicacion/{id}")
 public class InteraccionController {
 
-    private final ComentarioRepository comentarioRepository;
-    private final ValoracionRepository valoracionRepository;
-    private final FavoritoRepository favoritoRepository;
-    private final ReporteRepository reporteRepository;
+    private final ComentarioService comentarioService;
+    private final ValoracionService valoracionService;
+    private final FavoritoService favoritoService;
+    private final ReporteService reporteService;
     private final PublicacionService publicacionService;
     private final UsuarioService usuarioService;
 
-    public InteraccionController(ComentarioRepository comentarioRepository,
-                                 ValoracionRepository valoracionRepository,
-                                 FavoritoRepository favoritoRepository,
-                                 ReporteRepository reporteRepository,
+    public InteraccionController(ComentarioService comentarioService,
+                                 ValoracionService valoracionService,
+                                 FavoritoService favoritoService,
+                                 ReporteService reporteService,
                                  PublicacionService publicacionService,
                                  UsuarioService usuarioService) {
-        this.comentarioRepository = comentarioRepository;
-        this.valoracionRepository = valoracionRepository;
-        this.favoritoRepository = favoritoRepository;
-        this.reporteRepository = reporteRepository;
+        this.comentarioService = comentarioService;
+        this.valoracionService = valoracionService;
+        this.favoritoService = favoritoService;
+        this.reporteService = reporteService;
         this.publicacionService = publicacionService;
         this.usuarioService = usuarioService;
     }
@@ -49,7 +47,7 @@ public class InteraccionController {
             comentario.setAutor(usuario);
             comentario.setPublicacion(publicacion);
             comentario.setFechaPublicacion(LocalDateTime.now());
-            comentarioRepository.save(comentario);
+            comentarioService.guardar(comentario);
         }
         
         return "redirect:/publicacion/" + id;
@@ -63,34 +61,7 @@ public class InteraccionController {
         Usuario usuario = usuarioService.buscarPorNombreUsuario(authentication.getName());
         Publicacion publicacion = publicacionService.buscarPorId(id);
 
-        TipoValoracion nuevoTipo = esLike ? TipoValoracion.LIKE : TipoValoracion.DISLIKE;
-        
-        valoracionRepository.findByUsuarioAndPublicacion(usuario, publicacion).ifPresentOrElse(
-            val -> {
-                // Si ya valoró, comprobamos si le da al mismo botón para quitar la valoración
-                if (val.getTipo() == nuevoTipo) {
-                    valoracionRepository.delete(val);
-                    // Restamos la valoración que ya existía
-                    publicacion.setValoracion(publicacion.getValoracion() + (esLike ? -1 : 1));
-                } else {
-                    val.setTipo(nuevoTipo);
-                    valoracionRepository.save(val);
-                    // Cambiamos de like a dislike o viceversa (+2 o -2)
-                    publicacion.setValoracion(publicacion.getValoracion() + (esLike ? 2 : -2));
-                }
-            },
-            () -> {
-                Valoracion nueva = new Valoracion();
-                nueva.setTipo(nuevoTipo);
-                nueva.setUsuario(usuario);
-                nueva.setPublicacion(publicacion);
-                valoracionRepository.save(nueva);
-                // Sumamos o restamos 1
-                publicacion.setValoracion(publicacion.getValoracion() + (esLike ? 1 : -1));
-            }
-        );
-        
-        publicacionService.guardar(publicacion);
+        valoracionService.toggleValoracion(usuario, publicacion, esLike);
         return "redirect:/publicacion/" + id;
     }
 
@@ -101,15 +72,7 @@ public class InteraccionController {
         Usuario usuario = usuarioService.buscarPorNombreUsuario(authentication.getName());
         Publicacion publicacion = publicacionService.buscarPorId(id);
         
-        favoritoRepository.findByUsuarioAndPublicacion(usuario, publicacion).ifPresentOrElse(
-            favoritoRepository::delete, // Si existe, lo borra (toggle)
-            () -> {
-                Favorito nuevo = new Favorito();
-                nuevo.setUsuario(usuario);
-                nuevo.setPublicacion(publicacion);
-                favoritoRepository.save(nuevo);
-            }
-        );
+        favoritoService.toggleFavorito(usuario, publicacion);
         
         return "redirect:/publicacion/" + id;
     }
@@ -122,13 +85,7 @@ public class InteraccionController {
         Publicacion publicacion = publicacionService.buscarPorId(id);
         
         if (motivo != null && !motivo.trim().isEmpty()) {
-            Reporte reporte = new Reporte();
-            reporte.setMotivo(motivo);
-            reporte.setUsuario(usuario);
-            reporte.setPublicacion(publicacion);
-            reporte.setFechaReporte(LocalDateTime.now());
-            reporte.setResuelto(false);
-            reporteRepository.save(reporte);
+            reporteService.reportar(usuario, publicacion, motivo);
         }
         
         return "redirect:/publicacion/" + id + "?reportado=true";

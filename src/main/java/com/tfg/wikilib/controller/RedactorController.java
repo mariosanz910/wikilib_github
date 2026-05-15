@@ -2,31 +2,36 @@ package com.tfg.wikilib.controller;
 
 import com.tfg.wikilib.model.Publicacion;
 import com.tfg.wikilib.model.Usuario;
-import com.tfg.wikilib.repository.CategoriaRepository;
+import com.tfg.wikilib.model.Categoria;
+import com.tfg.wikilib.service.CategoriaService;
 import com.tfg.wikilib.service.PublicacionService;
 import com.tfg.wikilib.service.UsuarioService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
 @RequestMapping("/redactor")
+@Validated
 public class RedactorController {
 
     private final PublicacionService publicacionService;
     private final UsuarioService usuarioService;
-    private final CategoriaRepository categoriaRepository;
+    private final CategoriaService categoriaService;
 
     public RedactorController(PublicacionService publicacionService,
                               UsuarioService usuarioService,
-                              CategoriaRepository categoriaRepository) {
+                              CategoriaService categoriaService) {
         this.publicacionService = publicacionService;
         this.usuarioService = usuarioService;
-        this.categoriaRepository = categoriaRepository;
+        this.categoriaService = categoriaService;
     }
 
     // ===================== PANEL PRINCIPAL =====================
@@ -44,15 +49,15 @@ public class RedactorController {
     // Formulario para crear nueva publicación
     @GetMapping("/nueva-publicacion")
     public String nuevaPublicacionForm(Model model) {
-        model.addAttribute("categorias", categoriaRepository.findAll());
+        model.addAttribute("categorias", categoriaService.obtenerTodas());
         return "redactor/nueva-publicacion";
     }
 
     // Guardar nueva publicación
     @PostMapping("/nueva-publicacion")
-    public String guardarPublicacion(@RequestParam String titulo,
+    public String guardarPublicacion(@RequestParam @NotBlank(message = "El título es obligatorio") @Size(max = 200) String titulo,
                                      @RequestParam(required = false) String descripcion,
-                                     @RequestParam(required = false) String texto,
+                                     @RequestParam(required = false) @NotBlank(message = "El texto es obligatorio") String texto,
                                      @RequestParam(required = false) Long categoriaId,
                                      Authentication authentication) {
 
@@ -66,7 +71,8 @@ public class RedactorController {
         publicacion.setFechaCreacion(LocalDateTime.now());
 
         if (categoriaId != null) {
-            categoriaRepository.findById(categoriaId).ifPresent(publicacion::setCategoria);
+            Categoria cat = categoriaService.buscarPorId(categoriaId);
+            if (cat != null) publicacion.setCategoria(cat);
         }
 
         publicacionService.guardar(publicacion);
@@ -88,16 +94,16 @@ public class RedactorController {
         }
 
         model.addAttribute("publicacion", publicacion);
-        model.addAttribute("categorias", categoriaRepository.findAll());
+        model.addAttribute("categorias", categoriaService.obtenerTodas());
         return "redactor/editar-publicacion";
     }
 
     // Guardar cambios en publicación
     @PostMapping("/editar-publicacion/{id}")
     public String guardarEdicionPublicacion(@PathVariable Long id,
-                                            @RequestParam String titulo,
+                                            @RequestParam @NotBlank(message = "El título es obligatorio") @Size(max = 200) String titulo,
                                             @RequestParam(required = false) String descripcion,
-                                            @RequestParam(required = false) String texto,
+                                            @RequestParam(required = false) @NotBlank(message = "El texto es obligatorio") String texto,
                                             @RequestParam(required = false) Long categoriaId,
                                             Authentication authentication) {
 
@@ -112,7 +118,8 @@ public class RedactorController {
         publicacion.setTexto(texto);
 
         if (categoriaId != null) {
-            categoriaRepository.findById(categoriaId).ifPresent(publicacion::setCategoria);
+            Categoria cat = categoriaService.buscarPorId(categoriaId);
+            if (cat != null) publicacion.setCategoria(cat);
         } else {
             publicacion.setCategoria(null);
         }

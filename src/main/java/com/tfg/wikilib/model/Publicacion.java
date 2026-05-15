@@ -1,6 +1,8 @@
 package com.tfg.wikilib.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import java.time.LocalDateTime;
 
@@ -16,12 +18,15 @@ public class Publicacion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "El título es obligatorio")
+    @Size(max = 200, message = "El título no puede exceder los 200 caracteres")
     @Column(nullable = false, length = 200)
     private String titulo;
 
     @Column(columnDefinition = "TEXT")
     private String descripcion;
 
+    @NotBlank(message = "El contenido no puede estar vacío")
     @Column(name = "contenido", columnDefinition = "LONGTEXT", nullable = false)
     private String texto;
 
