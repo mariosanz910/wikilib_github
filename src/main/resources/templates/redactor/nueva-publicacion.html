@@ -17,9 +17,13 @@
     <form th:action="@{/redactor/nueva-publicacion}" method="post">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
+        <div th:if="${param.error}" style="background-color: #ffebee; color: #c62828; padding: 10px; margin-bottom: 15px; border-radius: 4px; border: 1px solid #ef9a9a;">
+            <strong>Error:</strong> Los campos no pueden estar vacíos ni contener solo espacios.
+        </div>
+
         <div>
             <label for="titulo">Título:</label>
-            <input type="text" id="titulo" name="titulo" required maxlength="200">
+            <input type="text" id="titulo" name="titulo" required maxlength="200" pattern=".*\S+.*" title="El título no puede estar vacío o contener solo espacios">
         </div>
 
         <div>
@@ -39,7 +43,7 @@
 
         <div>
             <label for="texto">Texto de la publicación:</label>
-            <textarea id="texto" name="texto" rows="10"></textarea>
+            <textarea id="texto" name="texto" rows="10" required oninput="if(this.value.trim() === '') this.setCustomValidity('El texto no puede contener solo espacios'); else this.setCustomValidity('');"></textarea>
         </div>
 
         <button type="submit">Guardar publicación</button>

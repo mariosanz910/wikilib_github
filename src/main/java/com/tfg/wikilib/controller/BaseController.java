@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.ui.Model;
 
+
 @ControllerAdvice
 public class BaseController {
 
@@ -15,4 +16,6 @@ public class BaseController {
     public void addGlobalAttributes(Model model) {
         model.addAttribute("googleAdsPublisherId", googleAdsPublisherId);
     }
+
+
 }
