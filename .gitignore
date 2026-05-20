@@ -33,6 +33,7 @@ build/
 .vscode/
 
 ### Credenciales / Secretos ###
+wikilib_github.env
 .env
 *.env
 .env.local
@@ -41,3 +42,5 @@ build/
 ### Perfil local de Spring (credenciales reales) ###
 application-local.properties
 src/main/resources/application-local.properties
+
+documentacion_fase4.md
