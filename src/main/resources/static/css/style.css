@@ -1,25 +1,44 @@
 /* WikiLib - Estilo Neutro (Negros y Grises) */
 
 * {
-    box-sizing: border-box; /* Fundamental para que el padding no ensanche los cuadros */
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
 }
 
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     line-height: 1.6;
     background-color: #fcfcfc;
-    margin: 0;
     color: #1a1a1a;
+    display: flex;
+    flex-direction: column;
 }
 
 .container {
+    flex: 1;  /* Esto hace que el container crezca y llene el espacio */
     max-width: 900px;
     margin: 40px auto;
     padding: 30px;
     background: #fff;
     border: 1px solid #e1e1e1;
     border-radius: 4px;
+    width: 100%;
 }
+
+footer {
+    margin-top: auto;  /* El footer se va al fondo automáticamente */
+    background-color: #1a1a1a;
+    color: #b0b0b0;
+    padding: 40px 30px;
+    border-top: 1px solid #333;
+    text-align: center;
+}
+
+/* ... resto del CSS igual ... */
 
 h1, h2, h3 {
     color: #000;
