@@ -213,3 +213,43 @@ th {
         margin-bottom: 10px;
     }
 }
+
+/* ==================== FOOTER DECORATIVO ==================== */
+
+footer {
+    background-color: #1a1a1a;
+    color: #b0b0b0;
+    margin-top: 60px;
+    padding: 40px 30px;
+    border-top: 1px solid #333;
+    text-align: center;
+}
+
+.footer-content p {
+    margin: 8px 0;
+    font-size: 0.9em;
+    letter-spacing: 0.5px;
+}
+
+.footer-content p:first-child {
+    font-weight: 600;
+    color: #e0e0e0;
+}
+
+.footer-content p:last-child {
+    color: #999;
+    font-size: 0.85em;
+}
+
+/* ==================== RESPONSIVIDAD FOOTER ==================== */
+
+@media (max-width: 600px) {
+    footer {
+        padding: 30px 15px;
+        margin-top: 40px;
+    }
+
+    .footer-content p {
+        font-size: 0.8em;
+    }
+}
