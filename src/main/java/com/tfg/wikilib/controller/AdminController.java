@@ -1,17 +1,26 @@
 package com.tfg.wikilib.controller;
 
-import com.tfg.wikilib.model.Categoria;
-import com.tfg.wikilib.model.Reporte;
-import com.tfg.wikilib.model.Usuario;
-import com.tfg.wikilib.service.CategoriaService;
-import com.tfg.wikilib.service.ReporteService;
-import com.tfg.wikilib.service.PublicacionService;
-import com.tfg.wikilib.service.UsuarioService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.tfg.wikilib.model.Categoria;
+import com.tfg.wikilib.model.Reporte;
+import com.tfg.wikilib.model.Usuario;
+import com.tfg.wikilib.service.CategoriaService;
+import com.tfg.wikilib.service.PublicacionService;
+import com.tfg.wikilib.service.ReporteService;
+import com.tfg.wikilib.service.UsuarioService;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -24,6 +33,9 @@ public class AdminController {
     private final ReporteService reporteService;
     private final CategoriaService categoriaService;
     private final PublicacionService publicacionService;
+
+    // Constante: 15 resultados por página
+    private static final int TAMAÑO_PAGINA = 15;
 
     public AdminController(UsuarioService usuarioService,
                            ReporteService reporteService,
@@ -74,8 +86,37 @@ public class AdminController {
 
     // ================== GESTIÓN DE REPORTES ==================
     @GetMapping("/reportes")
-    public String gestionarReportes(Model model) {
-        model.addAttribute("reportes", reporteService.obtenerPendientes());
+    public String gestionarReportes(@RequestParam(required = false) String buscar,
+                                    @RequestParam(defaultValue = "0") int page,
+                                    Model model) {
+
+        // Validar que page sea >= 0
+        if (page < 0) {
+            page = 0;
+        }
+
+        // Crear objeto Pageable
+        Pageable pageable = PageRequest.of(page, TAMAÑO_PAGINA);
+
+        // Obtener reportes según búsqueda
+        Page<Reporte> pageReportes;
+
+        if (buscar != null && !buscar.isBlank()) {
+            pageReportes = reporteService.buscarPorTituloPublicacion(buscar, pageable);
+            model.addAttribute("buscar", buscar);
+        } else {
+            pageReportes = reporteService.obtenerPendientesPaginados(pageable);
+        }
+
+        // Enviar datos a la vista
+        model.addAttribute("page", pageReportes);
+        model.addAttribute("reportes", pageReportes.getContent());
+        model.addAttribute("totalPages", pageReportes.getTotalPages());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("hasPrevious", pageReportes.hasPrevious());
+        model.addAttribute("hasNext", pageReportes.hasNext());
+        model.addAttribute("totalElements", pageReportes.getTotalElements());
+
         return "admin/reportes";
     }
 

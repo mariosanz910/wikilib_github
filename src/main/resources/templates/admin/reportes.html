@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Revisión de Reportes - WikiLib</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
@@ -13,38 +14,90 @@
         <a href="/admin/dashboard" class="btn">Volver al Panel</a>
     </div>
 
-    <div th:if="${#lists.isEmpty(reportes)}">
-        <p class="alert">No hay reportes pendientes.</p>
+    <!-- FORMULARIO DE BÚSQUEDA -->
+    <form th:action="@{/admin/reportes}" method="get">
+        <label for="buscar">Buscar por nombre de publicación:</label>
+        <input type="text" id="buscar" name="buscar" th:value="${buscar}" placeholder="Escribe el título de la publicación...">
+        <button type="submit">Buscar</button>
+        <a href="/admin/reportes" style="margin-left: 15px;">Limpiar filtro</a>
+    </form>
+
+    <!-- MENSAJE DE NO RESULTADOS -->
+    <div th:if="${reportes.isEmpty()}" class="alert">
+        <p>No hay reportes pendientes.</p>
     </div>
 
-    <div th:each="reporte : ${reportes}" class="post-card">
-        <p><strong>Motivo:</strong> <span th:text="${reporte.motivo}"></span></p>
-        <p><strong>Reportado por:</strong> <span th:text="${reporte.usuario.nombreUsuario}"></span> el <span th:text="${#temporals.format(reporte.fechaReporte, 'dd/MM/yyyy HH:mm')}"></span></p>
-        <p>
-            <strong>Publicación reportada:</strong> 
-            <a th:href="@{/publicacion/{id}(id=${reporte.publicacion.id})}" target="_blank" th:text="${reporte.publicacion.titulo}">Ver publicación</a>
-            (Autor: <span th:text="${reporte.publicacion.autor.nombreUsuario}"></span>)
-        </p>
+    <!-- LISTADO DE REPORTES -->
+    <div th:unless="${reportes.isEmpty()}">
+        <!-- Información de paginación -->
+        <div class="pagination-info">
+            Mostrando <strong th:text="${reportes.size()}"></strong> de 
+            <strong th:text="${totalElements}"></strong> reportes
+            <span th:if="${totalPages > 1}">(Página <strong th:text="${currentPage + 1}"></strong> de <strong th:text="${totalPages}"></strong>)</span>
+        </div>
 
-        <div style="margin-top: 15px;">
-            <form th:action="@{/admin/reportes/{id}/resolver(id=${reporte.id})}" method="post" style="display: inline-block; margin-right: 10px; background: none; border: none; padding: 0; width: auto; max-width: none;">
-                <input type="hidden" name="accion" value="DESCARTAR">
-                <button type="submit" class="btn">Descartar</button>
-            </form>
-            
-            <form th:action="@{/admin/reportes/{id}/resolver(id=${reporte.id})}" method="post" style="display: inline-block; background: none; border: none; padding: 0; width: auto; max-width: none;">
-                <input type="hidden" name="accion" value="ELIMINAR_PUBLICACION">
-                <button type="submit" class="btn btn-danger" onclick="return confirm('¿Seguro que deseas eliminar la publicación?');">
-                    Eliminar Publicación
-                </button>
-            </form>
+        <!-- Tarjetas de reportes -->
+        <div th:each="reporte : ${reportes}" class="post-card">
+            <p><strong>Motivo:</strong> <span th:text="${reporte.motivo}"></span></p>
+            <p><strong>Reportado por:</strong> <span th:text="${reporte.usuario.nombreUsuario}"></span> el <span th:text="${#temporals.format(reporte.fechaReporte, 'dd/MM/yyyy HH:mm')}"></span></p>
+            <p>
+                <strong>Publicación reportada:</strong> 
+                <a th:href="@{/publicacion/{id}(id=${reporte.publicacion.id})}" target="_blank" th:text="${reporte.publicacion.titulo}">Ver publicación</a>
+                (Autor: <span th:text="${reporte.publicacion.autor.nombreUsuario}"></span>)
+            </p>
+
+            <div class="report-actions">
+                <form th:action="@{/admin/reportes/{id}/resolver(id=${reporte.id})}" method="post">
+                    <input type="hidden" name="accion" value="DESCARTAR">
+                    <button type="submit" class="btn">Descartar</button>
+                </form>
+                
+                <form th:action="@{/admin/reportes/{id}/resolver(id=${reporte.id})}" method="post">
+                    <input type="hidden" name="accion" value="ELIMINAR_PUBLICACION">
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('¿Seguro que deseas eliminar la publicación?');">
+                        Eliminar Publicación
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- PAGINACIÓN -->
+        <div class="pagination" th:if="${totalPages > 1}">
+            <!-- Botón Anterior -->
+            <a th:if="${hasPrevious}" 
+               th:href="@{/admin/reportes(page=${currentPage - 1}, buscar=${buscar})}"
+               class="btn btn-sm">
+                Anterior
+            </a>
+            <span th:unless="${hasPrevious}" class="disabled">Anterior</span>
+
+            <!-- Números de página -->
+            <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                <!-- Mostrar solo 5 páginas alrededor de la actual -->
+                <th:block th:if="${i >= currentPage - 2 && i <= currentPage + 2}">
+                    <a th:if="${i != currentPage}" 
+                       th:href="@{/admin/reportes(page=${i}, buscar=${buscar})}"
+                       th:text="${i + 1}">
+                    </a>
+                    <span th:unless="${i != currentPage}" class="active" th:text="${i + 1}"></span>
+                </th:block>
+                <!-- Mostrar "..." si hay salto de páginas -->
+                <span th:if="${i == currentPage - 3 && currentPage > 3}">...</span>
+                <span th:if="${i == currentPage + 3 && currentPage < totalPages - 4}">...</span>
+            </th:block>
+
+            <!-- Botón Siguiente -->
+            <a th:if="${hasNext}" 
+               th:href="@{/admin/reportes(page=${currentPage + 1}, buscar=${buscar})}"
+               class="btn btn-sm">
+                Siguiente
+            </a>
+            <span th:unless="${hasNext}" class="disabled">Siguiente</span>
         </div>
     </div>
 </div>
 
-    <div th:insert="fragments/footer :: footer"></div>
-
+<div th:insert="fragments/footer :: footer"></div>
 
 </body>
 </html>
-

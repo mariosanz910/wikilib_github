@@ -1,14 +1,17 @@
 package com.tfg.wikilib.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.tfg.wikilib.model.Publicacion;
 import com.tfg.wikilib.model.Reporte;
 import com.tfg.wikilib.model.Usuario;
 import com.tfg.wikilib.repository.ReporteRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 public class ReporteService {
@@ -21,8 +24,19 @@ public class ReporteService {
         this.publicacionService = publicacionService;
     }
 
+    // Obtener reportes pendientes sin paginar (para uso interno)
     public List<Reporte> obtenerPendientes() {
         return reporteRepository.findByResueltoFalseOrderByFechaReporteDesc();
+    }
+
+    // Obtener reportes pendientes PAGINADOS
+    public Page<Reporte> obtenerPendientesPaginados(Pageable pageable) {
+        return reporteRepository.findByResueltoFalseOrderByFechaReporteDesc(pageable);
+    }
+
+    // Buscar reportes por nombre de publicación PAGINADO
+    public Page<Reporte> buscarPorTituloPublicacion(String buscar, Pageable pageable) {
+        return reporteRepository.buscarPorTituloPublicacionPendientes(buscar, pageable);
     }
 
     @Transactional

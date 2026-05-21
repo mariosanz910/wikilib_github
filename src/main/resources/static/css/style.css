@@ -272,3 +272,112 @@ footer {
         font-size: 0.8em;
     }
 }
+
+/* ==================== PAGINACIÓN ==================== */
+
+.pagination-info {
+    text-align: center;
+    margin: 20px 0;
+    color: #666;
+    font-size: 14px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 30px 0;
+    flex-wrap: wrap;
+}
+
+.pagination a, .pagination span {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.3s;
+}
+
+.pagination a:hover {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.pagination .active {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+    cursor: default;
+}
+
+.pagination .disabled {
+    color: #ccc;
+    border-color: #ddd;
+    cursor: not-allowed;
+}
+
+.pagination .disabled:hover {
+    background-color: transparent;
+    color: #ccc;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.8em;
+}
+
+/* ==================== ACCIONES DE REPORTES ==================== */
+
+.report-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+.report-actions form {
+    background: none;
+    border: none;
+    padding: 0;
+    width: auto;
+    max-width: none;
+    margin: 0;
+    display: inline-block;
+}
+
+.report-actions button {
+    padding: 8px 16px;
+    font-size: 0.8em;
+}
+
+/* ==================== RESPONSIVIDAD PAGINACIÓN ==================== */
+
+@media (max-width: 600px) {
+    .pagination {
+        gap: 5px;
+    }
+
+    .pagination a, .pagination span {
+        padding: 6px 8px;
+        font-size: 0.85em;
+    }
+
+    .pagination-info {
+        font-size: 12px;
+    }
+
+    .report-actions {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .report-actions form {
+        width: 100%;
+    }
+
+    .report-actions button {
+        width: 100%;
+    }
+}
