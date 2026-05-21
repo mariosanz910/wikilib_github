@@ -1,27 +1,30 @@
 package com.tfg.wikilib.repository;
 
-import com.tfg.wikilib.model.Publicacion;
-import com.tfg.wikilib.model.Usuario;
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.tfg.wikilib.model.Publicacion;
+import com.tfg.wikilib.model.Usuario;
 
 @Repository
 public interface PublicacionRepository extends JpaRepository<Publicacion, Long> {
 
-    // Todas las publicaciones (para el catálogo público)
-    List<Publicacion> findAllByOrderByFechaCreacionDesc();
+    // Todas las publicaciones PAGINADAS
+    Page<Publicacion> findAllByOrderByFechaCreacionDesc(Pageable pageable);
 
-    // Buscar por título (contiene, sin importar mayúsculas)
-    List<Publicacion> findByTituloContainingIgnoreCaseOrderByFechaCreacionDesc(String titulo);
+    // Buscar por título PAGINADO
+    Page<Publicacion> findByTituloContainingIgnoreCaseOrderByFechaCreacionDesc(String titulo, Pageable pageable);
 
-    // Filtrar por categoría
-    List<Publicacion> findByCategoriaIdOrderByFechaCreacionDesc(Long categoriaId);
+    // Filtrar por categoría PAGINADO
+    Page<Publicacion> findByCategoriaIdOrderByFechaCreacionDesc(Long categoriaId, Pageable pageable);
 
-    // Publicaciones de un autor concreto (para el panel del redactor)
+    // Publicaciones de un autor concreto (sin paginar, para panel del redactor)
     List<Publicacion> findByAutorOrderByFechaCreacionDesc(Usuario autor);
 
-    // Estadísticas
+    // Estadísticas (sin paginar)
     List<Publicacion> findTop5ByOrderByVisitasDesc();
 }

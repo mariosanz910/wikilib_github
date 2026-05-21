@@ -1,12 +1,15 @@
 package com.tfg.wikilib.service;
 
-import com.tfg.wikilib.model.Publicacion;
-import com.tfg.wikilib.model.Usuario;
-import com.tfg.wikilib.repository.PublicacionRepository;
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import com.tfg.wikilib.model.Publicacion;
+import com.tfg.wikilib.model.Usuario;
+import com.tfg.wikilib.repository.PublicacionRepository;
 
 @Service
 public class PublicacionService {
@@ -20,22 +23,22 @@ public class PublicacionService {
         this.favoritoRepository = favoritoRepository;
     }
 
-    // Obtener todas las publicaciones para el catálogo
-    public List<Publicacion> obtenerTodas() {
-        return publicacionRepository.findAllByOrderByFechaCreacionDesc();
+    // Obtener todas las publicaciones PAGINADAS
+    public Page<Publicacion> obtenerTodas(Pageable pageable) {
+        return publicacionRepository.findAllByOrderByFechaCreacionDesc(pageable);
     }
 
-    // Buscar publicaciones por título
-    public List<Publicacion> buscarPorTitulo(String titulo) {
-        return publicacionRepository.findByTituloContainingIgnoreCaseOrderByFechaCreacionDesc(titulo);
+    // Buscar publicaciones por título PAGINADAS
+    public Page<Publicacion> buscarPorTitulo(String titulo, Pageable pageable) {
+        return publicacionRepository.findByTituloContainingIgnoreCaseOrderByFechaCreacionDesc(titulo, pageable);
     }
 
-    // Filtrar publicaciones por categoría
-    public List<Publicacion> buscarPorCategoria(Long categoriaId) {
-        return publicacionRepository.findByCategoriaIdOrderByFechaCreacionDesc(categoriaId);
+    // Filtrar publicaciones por categoría PAGINADAS
+    public Page<Publicacion> buscarPorCategoria(Long categoriaId, Pageable pageable) {
+        return publicacionRepository.findByCategoriaIdOrderByFechaCreacionDesc(categoriaId, pageable);
     }
 
-    // Obtener publicaciones de un redactor (para su panel)
+    // Obtener publicaciones de un redactor (para su panel, sin paginar)
     public List<Publicacion> obtenerPublicacionesDeAutor(Usuario autor) {
         return publicacionRepository.findByAutorOrderByFechaCreacionDesc(autor);
     }
@@ -68,6 +71,7 @@ public class PublicacionService {
         return publicacionRepository.findTop5ByOrderByVisitasDesc();
     }
 
+    // Buscar favoritos (sin paginar, es una lista personal del usuario)
     public List<Publicacion> buscarFavoritos(Usuario usuario) {
         return favoritoRepository.findByUsuario(usuario).stream()
                 .map(com.tfg.wikilib.model.Favorito::getPublicacion)

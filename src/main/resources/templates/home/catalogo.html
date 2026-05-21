@@ -6,7 +6,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catálogo - WikiLib</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        /* Estilos para paginación */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
 
+        .pagination a, .pagination span {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s;
+        }
+
+        .pagination a:hover {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .pagination .active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+            cursor: default;
+        }
+
+        .pagination .disabled {
+            color: #ccc;
+            border-color: #ddd;
+            cursor: not-allowed;
+        }
+
+        .pagination .disabled:hover {
+            background-color: transparent;
+            color: #ccc;
+        }
+
+        .pagination-info {
+            text-align: center;
+            margin: 20px 0;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
 </head>
 
 <body>
@@ -21,6 +70,7 @@
             </div>
         </div>
 
+        <!-- FORMULARIO DE BÚSQUEDA Y FILTROS -->
         <form th:action="@{/catalogo}" method="get">
             <label for="buscar">Buscar por título:</label>
             <input type="text" id="buscar" name="buscar" th:value="${buscar}">
@@ -50,17 +100,61 @@
             </script>
         </div>
 
+        <!-- MENSAJE DE NO RESULTADOS -->
         <div th:if="${publicaciones.isEmpty()}">
             <p class="alert alert-error">No se encontraron publicaciones que coincidan con la búsqueda.</p>
         </div>
 
+        <!-- LISTADO DE PUBLICACIONES -->
         <div th:unless="${publicaciones.isEmpty()}">
+            <!-- Información de paginación -->
+            <div class="pagination-info">
+                Mostrando <strong th:text="${publicaciones.size()}"></strong> de 
+                <strong th:text="${totalElements}"></strong> publicaciones
+                <span th:if="${totalPages > 1}">(Página <strong th:text="${currentPage + 1}"></strong> de <strong th:text="${totalPages}"></strong>)</span>
+            </div>
+
+            <!-- Tarjetas de publicaciones -->
             <div th:each="pub : ${publicaciones}" class="post-card">
                 <h3><a th:href="@{/publicacion/{id}(id=${pub.id})}" th:text="${pub.titulo}">Título</a></h3>
                 <p><strong>Categoría:</strong> <span
                         th:text="${pub.categoria != null ? pub.categoria.nombre : 'Sin categoría'}"></span></p>
                 <p th:text="${pub.descripcion}">Descripción principal de la publicación.</p>
                 <p><small>Publicado por: <span th:text="${pub.autor.nombreUsuario}">Autor</span></small></p>
+            </div>
+
+            <!-- PAGINACIÓN -->
+            <div class="pagination" th:if="${totalPages > 1}">
+                <!-- Botón Anterior -->
+                <a th:if="${hasPrevious}" 
+                   th:href="@{/catalogo(page=${currentPage - 1}, buscar=${buscar}, categoria=${categoriaSeleccionada}, favoritos=${favoritosSeleccionado})}"
+                   class="btn btn-sm">
+                    ← Anterior
+                </a>
+                <span th:unless="${hasPrevious}" class="disabled">← Anterior</span>
+
+                <!-- Números de página -->
+                <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                    <!-- Mostrar solo 5 páginas alrededor de la actual -->
+                    <th:block th:if="${i >= currentPage - 2 && i <= currentPage + 2}">
+                        <a th:if="${i != currentPage}" 
+                           th:href="@{/catalogo(page=${i}, buscar=${buscar}, categoria=${categoriaSeleccionada}, favoritos=${favoritosSeleccionado})}"
+                           th:text="${i + 1}">
+                        </a>
+                        <span th:unless="${i != currentPage}" class="active" th:text="${i + 1}"></span>
+                    </th:block>
+                    <!-- Mostrar "..." si hay salto de páginas -->
+                    <span th:if="${i == currentPage - 3 && currentPage > 3}">...</span>
+                    <span th:if="${i == currentPage + 3 && currentPage < totalPages - 4}">...</span>
+                </th:block>
+
+                <!-- Botón Siguiente -->
+                <a th:if="${hasNext}" 
+                   th:href="@{/catalogo(page=${currentPage + 1}, buscar=${buscar}, categoria=${categoriaSeleccionada}, favoritos=${favoritosSeleccionado})}"
+                   class="btn btn-sm">
+                    Siguiente →
+                </a>
+                <span th:unless="${hasNext}" class="disabled">Siguiente →</span>
             </div>
         </div>
 
