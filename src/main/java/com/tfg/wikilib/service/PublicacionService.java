@@ -9,7 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.tfg.wikilib.model.Publicacion;
 import com.tfg.wikilib.model.Usuario;
+import com.tfg.wikilib.model.Serie;
 import com.tfg.wikilib.repository.PublicacionRepository;
+import java.util.Optional;
 
 @Service
 public class PublicacionService {
@@ -76,5 +78,22 @@ public class PublicacionService {
         return favoritoRepository.findByUsuario(usuario).stream()
                 .map(com.tfg.wikilib.model.Favorito::getPublicacion)
                 .toList();
+    }
+
+    // Obtener publicaciones de una serie ordenadas
+    public List<Publicacion> obtenerPorSerie(Serie serie) {
+        return publicacionRepository.findBySerieOrderByOrdenAsc(serie);
+    }
+
+    // Obtener la siguiente publicación en una serie
+    public Optional<Publicacion> obtenerSiguienteEnSerie(Publicacion actual) {
+        if (actual.getSerie() == null || actual.getOrden() == null) return Optional.empty();
+        return publicacionRepository.findFirstBySerieAndOrdenGreaterThanOrderByOrdenAsc(actual.getSerie(), actual.getOrden());
+    }
+
+    // Obtener la anterior publicación en una serie
+    public Optional<Publicacion> obtenerAnteriorEnSerie(Publicacion actual) {
+        if (actual.getSerie() == null || actual.getOrden() == null) return Optional.empty();
+        return publicacionRepository.findFirstBySerieAndOrdenLessThanOrderByOrdenDesc(actual.getSerie(), actual.getOrden());
     }
 }

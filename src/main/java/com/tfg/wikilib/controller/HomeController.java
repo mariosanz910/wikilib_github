@@ -1,6 +1,7 @@
 package com.tfg.wikilib.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -143,6 +144,15 @@ public class HomeController {
 
             boolean esFavorito = favoritoService.esFavorito(usuario, publicacion);
             model.addAttribute("esFavorito", esFavorito);
+        }
+
+        // Navegación de series
+        if (publicacion.getSerie() != null) {
+            Optional<Publicacion> anterior = publicacionService.obtenerAnteriorEnSerie(publicacion);
+            Optional<Publicacion> siguiente = publicacionService.obtenerSiguienteEnSerie(publicacion);
+            
+            anterior.ifPresent(p -> model.addAttribute("publicacionAnterior", p));
+            siguiente.ifPresent(p -> model.addAttribute("publicacionSiguiente", p));
         }
 
         return "home/publicacion";

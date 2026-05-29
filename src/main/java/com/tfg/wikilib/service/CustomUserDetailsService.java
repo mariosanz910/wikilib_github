@@ -1,7 +1,8 @@
 package com.tfg.wikilib.service;
 
-import com.tfg.wikilib.model.Usuario;
-import com.tfg.wikilib.repository.UsuarioRepository;
+import java.util.Collection;
+import java.util.Collections;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -10,8 +11,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.Collections;
+import com.tfg.wikilib.model.Usuario;
+import com.tfg.wikilib.repository.UsuarioRepository;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -43,7 +44,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return User.builder()
                 .username(usuario.getNombreUsuario())
                 .password(usuario.getPassword())
-                .authorities(getAuthorities(usuario))
+                .authorities(getAuthorities(usuario)) // Obtiene los roles del usuario
                 .accountExpired(false)
                 .accountLocked(usuario.getEstado() == Usuario.Estado.INACTIVO)
                 .credentialsExpired(false)

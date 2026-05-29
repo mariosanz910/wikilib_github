@@ -1,14 +1,15 @@
 package com.tfg.wikilib.service;
 
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.tfg.wikilib.model.Publicacion;
 import com.tfg.wikilib.model.TipoValoracion;
 import com.tfg.wikilib.model.Usuario;
 import com.tfg.wikilib.model.Valoracion;
 import com.tfg.wikilib.repository.ValoracionRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 public class ValoracionService {
@@ -47,7 +48,7 @@ public class ValoracionService {
                     publicacion.setValoracion(publicacion.getValoracion() + (esLike ? 2 : -2));
                 }
             },
-            () -> {
+            () -> { // añad una nueva valoración
                 Valoracion nueva = new Valoracion();
                 nueva.setTipo(nuevoTipo);
                 nueva.setUsuario(usuario);

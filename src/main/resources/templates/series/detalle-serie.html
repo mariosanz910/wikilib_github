@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${serie.nombre} + ' - Colección WikiLib'">Colección - WikiLib</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .serie-header { background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px; border-left: 5px solid #007bff; }
+        .article-list { list-style: none; padding: 0; }
+        .article-list li { margin-bottom: 15px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center; }
+        .article-number { font-size: 24px; font-weight: bold; color: #007bff; margin-right: 20px; min-width: 40px; text-align: center; }
+        .article-info h3 { margin: 0 0 5px 0; font-size: 18px; }
+        .article-info p { margin: 0; color: #555; font-size: 14px; }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Detalle de Colección</h1>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <a href="/series" class="btn">← Volver a Colecciones</a>
+                <a href="/catalogo" class="btn btn-secondary">Catálogo</a>
+            </div>
+        </div>
+
+        <div class="serie-header">
+            <h2 th:text="${serie.nombre}">Nombre de la serie</h2>
+            <p th:text="${serie.descripcion}">Descripción de la colección...</p>
+            <p><small>Creada por: <strong th:text="${serie.autor.nombreUsuario}">Autor</strong> el <span th:text="${#temporals.format(serie.fechaCreacion, 'dd/MM/yyyy')}"></span></small></p>
+        </div>
+
+        <h3>Artículos en esta colección:</h3>
+        
+        <div th:if="${publicaciones.isEmpty()}">
+            <p class="alert alert-info">Esta colección aún no tiene artículos publicados.</p>
+        </div>
+
+        <ul class="article-list" th:unless="${publicaciones.isEmpty()}">
+            <li th:each="pub : ${publicaciones}">
+                <div class="article-number" th:text="${pub.orden}">1</div>
+                <div class="article-info">
+                    <h3><a th:href="@{/publicacion/{id}(id=${pub.id})}" th:text="${pub.titulo}">Título del Artículo</a></h3>
+                    <p th:text="${pub.descripcion}">Descripción breve...</p>
+                </div>
+            </li>
+        </ul>
+
+    </div>
+    
+    <div th:insert="~{fragments/footer :: footer}"></div>
+</body>
+</html>

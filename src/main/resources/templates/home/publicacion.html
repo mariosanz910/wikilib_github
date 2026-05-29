@@ -23,6 +23,19 @@
         </p>
     </div>
 
+    <!-- Navegación de Colección -->
+    <div th:if="${publicacion.serie != null}" style="background: #e9ecef; padding: 15px; border-radius: 5px; margin: 20px 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div>
+            <span style="font-size: 0.9em; color: #555;">Colección:</span>
+            <strong><a th:href="@{/series/{id}(id=${publicacion.serie.id})}" th:text="${publicacion.serie.nombre}">Nombre</a></strong>
+            <span style="font-size: 0.9em; color: #555;">(Parte <span th:text="${publicacion.orden}">1</span>)</span>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <a th:if="${publicacionAnterior != null}" th:href="@{/publicacion/{id}(id=${publicacionAnterior.id})}" class="btn btn-sm btn-secondary">← Anterior</a>
+            <a th:if="${publicacionSiguiente != null}" th:href="@{/publicacion/{id}(id=${publicacionSiguiente.id})}" class="btn btn-sm btn-secondary">Siguiente →</a>
+        </div>
+    </div>
+
     <div style="margin: 30px 0; font-size: 1.1em;">
         <p th:text="${publicacion.texto}" style="white-space: pre-wrap;"></p>
     </div>

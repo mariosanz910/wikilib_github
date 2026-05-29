@@ -37,6 +37,23 @@
             </select>
         </div>
 
+        <div style="display: flex; gap: 20px; margin-bottom: 15px;">
+            <div style="flex: 1;">
+                <label for="serieId">Colección (Opcional):</label>
+                <select id="serieId" name="serieId" style="width: 100%; padding: 8px;">
+                    <option value="">(Sin colección)</option>
+                    <option th:each="serie : ${series}"
+                            th:value="${serie.id}"
+                            th:text="${serie.nombre}"
+                            th:selected="${publicacion.serie != null and publicacion.serie.id == serie.id}">Colección</option>
+                </select>
+            </div>
+            <div style="flex: 1;">
+                <label for="orden">Nº Orden en Colección:</label>
+                <input type="number" id="orden" name="orden" min="1" placeholder="Ej. 1" th:value="${publicacion.orden}" style="width: 100%; padding: 8px;">
+            </div>
+        </div>
+
         <div>
             <label for="descripcion">Descripción breve:</label>
             <textarea id="descripcion" name="descripcion" rows="3" th:text="${publicacion.descripcion}"></textarea>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Colecciones - Panel de Redactor</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .table th, .table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        .table th { background-color: #f4f4f4; }
+        .action-btns { display: flex; gap: 10px; }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Mis Colecciones</h1>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <a href="/redactor/panel" class="btn btn-secondary">Volver al Panel</a>
+                <a href="/redactor/crear-serie" class="btn">Nueva Colección</a>
+            </div>
+        </div>
+
+        <div th:if="${series.isEmpty()}">
+            <p class="alert alert-info">Aún no has creado ninguna colección. Las colecciones te permiten agrupar artículos relacionados y ordenarlos secuencialmente.</p>
+        </div>
+
+        <table class="table" th:unless="${series.isEmpty()}">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Fecha de Creación</th>
+                    <th>Nº Artículos</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="serie : ${series}">
+                    <td th:text="${serie.nombre}"></td>
+                    <td th:text="${serie.descripcion}"></td>
+                    <td th:text="${#temporals.format(serie.fechaCreacion, 'dd/MM/yyyy')}"></td>
+                    <td th:text="${serie.publicaciones.size()}"></td>
+                    <td class="action-btns">
+                        <a th:href="@{/series/{id}(id=${serie.id})}" class="btn btn-sm btn-secondary" target="_blank">Ver</a>
+                        <a th:href="@{/redactor/editar-serie/{id}(id=${serie.id})}" class="btn btn-sm">Editar</a>
+                        <form th:action="@{/redactor/eliminar-serie/{id}(id=${serie.id})}" method="post" onsubmit="return confirm('¿Seguro que quieres eliminar esta colección? (No se borrarán los artículos)');">
+                            <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

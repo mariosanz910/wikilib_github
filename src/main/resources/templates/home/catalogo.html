@@ -63,8 +63,9 @@
     <div class="container">
         <div class="header">
             <h1>Catálogo de Publicaciones</h1>
-            <div>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                 <span>Hola, <strong sec:authentication="name"></strong></span>
+                <a href="/series" class="btn">Colecciones</a>
                 <a sec:authorize="hasRole('REDACTOR')" href="/redactor/panel" class="btn">Mi Panel</a>
                 <a href="/logout" class="btn btn-danger">Cerrar sesión</a>
             </div>

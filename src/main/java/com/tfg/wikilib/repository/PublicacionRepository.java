@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository;
 
 import com.tfg.wikilib.model.Publicacion;
 import com.tfg.wikilib.model.Usuario;
+import com.tfg.wikilib.model.Serie;
+import java.util.Optional;
 
 @Repository
 public interface PublicacionRepository extends JpaRepository<Publicacion, Long> {
@@ -27,4 +29,11 @@ public interface PublicacionRepository extends JpaRepository<Publicacion, Long> 
 
     // Estadísticas (sin paginar)
     List<Publicacion> findTop5ByOrderByVisitasDesc();
+
+    // Navegación en series
+    List<Publicacion> findBySerieOrderByOrdenAsc(Serie serie);
+    
+    Optional<Publicacion> findFirstBySerieAndOrdenGreaterThanOrderByOrdenAsc(Serie serie, Integer orden);
+    
+    Optional<Publicacion> findFirstBySerieAndOrdenLessThanOrderByOrdenDesc(Serie serie, Integer orden);
 }

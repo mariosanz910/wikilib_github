@@ -3,9 +3,11 @@ package com.tfg.wikilib.controller;
 import com.tfg.wikilib.model.Publicacion;
 import com.tfg.wikilib.model.Usuario;
 import com.tfg.wikilib.model.Categoria;
+import com.tfg.wikilib.model.Serie;
 import com.tfg.wikilib.service.CategoriaService;
 import com.tfg.wikilib.service.PublicacionService;
 import com.tfg.wikilib.service.UsuarioService;
+import com.tfg.wikilib.service.SerieService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,13 +27,16 @@ public class RedactorController {
     private final PublicacionService publicacionService;
     private final UsuarioService usuarioService;
     private final CategoriaService categoriaService;
+    private final SerieService serieService;
 
     public RedactorController(PublicacionService publicacionService,
                               UsuarioService usuarioService,
-                              CategoriaService categoriaService) {
+                              CategoriaService categoriaService,
+                              SerieService serieService) {
         this.publicacionService = publicacionService;
         this.usuarioService = usuarioService;
         this.categoriaService = categoriaService;
+        this.serieService = serieService;
     }
 
     // ===================== PANEL PRINCIPAL =====================
@@ -44,12 +49,76 @@ public class RedactorController {
         return "redactor/panel";
     }
 
+    // ===================== SERIES / COLECCIONES =====================
+
+    @GetMapping("/mis-series")
+    public String misSeries(Authentication authentication, Model model) {
+        Usuario autor = usuarioService.buscarPorNombreUsuario(authentication.getName());
+        model.addAttribute("series", serieService.obtenerSeriesPorAutor(autor));
+        return "redactor/mis-series";
+    }
+
+    @GetMapping("/crear-serie")
+    public String crearSerieForm() {
+        return "redactor/crear-serie";
+    }
+
+    @PostMapping("/crear-serie")
+    public String guardarSerie(@RequestParam @NotBlank(message = "El nombre es obligatorio") @Size(max = 100) String nombre,
+                               @RequestParam(required = false) @Size(max = 500) String descripcion,
+                               Authentication authentication) {
+        Usuario autor = usuarioService.buscarPorNombreUsuario(authentication.getName());
+        Serie serie = new Serie();
+        serie.setNombre(nombre);
+        serie.setDescripcion(descripcion);
+        serie.setAutor(autor);
+        serie.setFechaCreacion(LocalDateTime.now());
+        serieService.guardar(serie);
+        return "redirect:/redactor/mis-series";
+    }
+
+    @GetMapping("/editar-serie/{id}")
+    public String editarSerieForm(@PathVariable Long id, Authentication authentication, Model model) {
+        Serie serie = serieService.buscarPorId(id);
+        if (!serie.getAutor().getNombreUsuario().equals(authentication.getName())) {
+            return "redirect:/redactor/mis-series";
+        }
+        model.addAttribute("serie", serie);
+        return "redactor/editar-serie";
+    }
+
+    @PostMapping("/editar-serie/{id}")
+    public String guardarEdicionSerie(@PathVariable Long id,
+                                      @RequestParam @NotBlank(message = "El nombre es obligatorio") @Size(max = 100) String nombre,
+                                      @RequestParam(required = false) @Size(max = 500) String descripcion,
+                                      Authentication authentication) {
+        Serie serie = serieService.buscarPorId(id);
+        if (!serie.getAutor().getNombreUsuario().equals(authentication.getName())) {
+            return "redirect:/redactor/mis-series";
+        }
+        serie.setNombre(nombre);
+        serie.setDescripcion(descripcion);
+        serieService.guardar(serie);
+        return "redirect:/redactor/mis-series";
+    }
+
+    @PostMapping("/eliminar-serie/{id}")
+    public String eliminarSerie(@PathVariable Long id, Authentication authentication) {
+        Serie serie = serieService.buscarPorId(id);
+        if (serie.getAutor().getNombreUsuario().equals(authentication.getName())) {
+            serieService.eliminar(id);
+        }
+        return "redirect:/redactor/mis-series";
+    }
+
     // ===================== NUEVA PUBLICACIÓN =====================
 
     // Formulario para crear nueva publicación
     @GetMapping("/nueva-publicacion")
-    public String nuevaPublicacionForm(Model model) {
+    public String nuevaPublicacionForm(Authentication authentication, Model model) {
+        Usuario autor = usuarioService.buscarPorNombreUsuario(authentication.getName());
         model.addAttribute("categorias", categoriaService.obtenerTodas());
+        model.addAttribute("series", serieService.obtenerSeriesPorAutor(autor));
         return "redactor/nueva-publicacion";
     }
 
@@ -59,6 +128,8 @@ public class RedactorController {
                                      @RequestParam(required = false) String descripcion,
                                      @RequestParam(required = false) @NotBlank(message = "El texto es obligatorio") String texto,
                                      @RequestParam(required = false) Long categoriaId,
+                                     @RequestParam(required = false) Long serieId,
+                                     @RequestParam(required = false) Integer orden,
                                      Authentication authentication) {
 
         Usuario autor = usuarioService.buscarPorNombreUsuario(authentication.getName());
@@ -73,6 +144,14 @@ public class RedactorController {
         if (categoriaId != null) {
             Categoria cat = categoriaService.buscarPorId(categoriaId);
             if (cat != null) publicacion.setCategoria(cat);
+        }
+        
+        if (serieId != null) {
+            Serie s = serieService.buscarPorId(serieId);
+            if (s != null) {
+                publicacion.setSerie(s);
+                publicacion.setOrden(orden != null ? orden : 1);
+            }
         }
 
         publicacionService.guardar(publicacion);
@@ -93,8 +172,11 @@ public class RedactorController {
             return "redirect:/redactor/panel";
         }
 
+        Usuario autor = usuarioService.buscarPorNombreUsuario(authentication.getName());
         model.addAttribute("publicacion", publicacion);
         model.addAttribute("categorias", categoriaService.obtenerTodas());
+        model.addAttribute("series", serieService.obtenerSeriesPorAutor(autor));
+        
         return "redactor/editar-publicacion";
     }
 
@@ -105,6 +187,8 @@ public class RedactorController {
                                             @RequestParam(required = false) String descripcion,
                                             @RequestParam(required = false) @NotBlank(message = "El texto es obligatorio") String texto,
                                             @RequestParam(required = false) Long categoriaId,
+                                            @RequestParam(required = false) Long serieId,
+                                            @RequestParam(required = false) Integer orden,
                                             Authentication authentication) {
 
         Publicacion publicacion = publicacionService.buscarPorId(id);
@@ -122,6 +206,17 @@ public class RedactorController {
             if (cat != null) publicacion.setCategoria(cat);
         } else {
             publicacion.setCategoria(null);
+        }
+        
+        if (serieId != null) {
+            Serie s = serieService.buscarPorId(serieId);
+            if (s != null) {
+                publicacion.setSerie(s);
+                publicacion.setOrden(orden != null ? orden : 1);
+            }
+        } else {
+            publicacion.setSerie(null);
+            publicacion.setOrden(null);
         }
 
         publicacionService.guardar(publicacion);

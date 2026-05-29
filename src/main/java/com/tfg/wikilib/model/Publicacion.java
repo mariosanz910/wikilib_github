@@ -58,6 +58,15 @@ public class Publicacion {
     @JoinColumn(name = "categoria_id")
     private Categoria categoria;
 
+    @ManyToOne
+    @JoinColumn(name = "serie_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Serie serie;
+
+    @Column(name = "orden_en_serie")
+    private Integer orden;
+
     public enum EstadoPublicacion {
         BORRADOR, PUBLICADO
     }

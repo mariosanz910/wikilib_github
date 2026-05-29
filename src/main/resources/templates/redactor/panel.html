@@ -23,7 +23,10 @@
     <div style="margin-top: 30px;">
         <div class="header">
             <h2>Tus Publicaciones</h2>
-            <a href="/redactor/nueva-publicacion" class="btn" style="background-color: #27ae60;">+ Crear nueva publicación</a>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <a href="/redactor/mis-series" class="btn" style="background-color: #3498db;">Mis Colecciones</a>
+                <a href="/redactor/nueva-publicacion" class="btn" style="background-color: #27ae60;">+ Crear publicación</a>
+            </div>
         </div>
 
         <div th:if="${publicaciones.isEmpty()}">
