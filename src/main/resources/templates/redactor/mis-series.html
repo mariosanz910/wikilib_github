@@ -5,55 +5,233 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mis Colecciones - Panel de Redactor</title>
+
     <link rel="stylesheet" th:href="@{/css/style.css}">
+
     <style>
-        .table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .table th, .table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        .table th { background-color: #f4f4f4; }
-        .action-btns { display: flex; gap: 10px; }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+        }
+
+        .table th,
+        .table td {
+            border: 1px solid #ddd;
+            padding: 14px;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        /* CABECERA */
+        .table th {
+            background-color: #111;
+            color: white;
+            font-weight: bold;
+        }
+
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            margin: 0;
+        }
+
+        /* BOTONES SUPERIORES */
+        .top-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* BOTONES ACCIONES */
+        .action-btns {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: nowrap;
+        }
+
+        .action-btns form {
+            margin: 0;
+        }
+
+        /* BOTONES */
+        .btn {
+            background-color: #111;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: 0.2s ease;
+            font-size: 14px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            min-width: 85px;
+            height: 36px;
+
+            white-space: nowrap;
+            box-sizing: border-box;
+        }
+
+        .btn:hover {
+            background-color: #333;
+        }
+
+        /* BOTÓN SECUNDARIO */
+        .btn-secondary {
+            background-color: #111;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #333;
+        }
+
+        /* BOTÓN ELIMINAR */
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        /* ALERTAS */
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+
+        .alert-info {
+            background-color: #e9f5ff;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
     </style>
+
 </head>
 
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Mis Colecciones</h1>
-            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                <a href="/redactor/panel" class="btn btn-secondary">Volver al Panel</a>
-                <a href="/redactor/crear-serie" class="btn">Nueva Colección</a>
-            </div>
+
+<div class="container">
+
+    <div class="header">
+
+        <h1>Mis Colecciones</h1>
+
+        <div class="top-buttons">
+
+            <a href="/redactor/panel"
+               class="btn btn-secondary">
+                Volver al Panel
+            </a>
+
+            <a href="/redactor/crear-serie"
+               class="btn">
+                Nueva Colección
+            </a>
+
         </div>
 
-        <div th:if="${series.isEmpty()}">
-            <p class="alert alert-info">Aún no has creado ninguna colección. Las colecciones te permiten agrupar artículos relacionados y ordenarlos secuencialmente.</p>
-        </div>
-
-        <table class="table" th:unless="${series.isEmpty()}">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Descripción</th>
-                    <th>Fecha de Creación</th>
-                    <th>Nº Artículos</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="serie : ${series}">
-                    <td th:text="${serie.nombre}"></td>
-                    <td th:text="${serie.descripcion}"></td>
-                    <td th:text="${#temporals.format(serie.fechaCreacion, 'dd/MM/yyyy')}"></td>
-                    <td th:text="${serie.publicaciones.size()}"></td>
-                    <td class="action-btns">
-                        <a th:href="@{/series/{id}(id=${serie.id})}" class="btn btn-sm btn-secondary" target="_blank">Ver</a>
-                        <a th:href="@{/redactor/editar-serie/{id}(id=${serie.id})}" class="btn btn-sm">Editar</a>
-                        <form th:action="@{/redactor/eliminar-serie/{id}(id=${serie.id})}" method="post" onsubmit="return confirm('¿Seguro que quieres eliminar esta colección? (No se borrarán los artículos)');">
-                            <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
-                        </form>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
     </div>
+
+    <div th:if="${series.isEmpty()}">
+
+        <p class="alert alert-info">
+            Aún no has creado ninguna colección.
+            Las colecciones te permiten agrupar artículos
+            relacionados y ordenarlos secuencialmente.
+        </p>
+
+    </div>
+
+    <table class="table" th:unless="${series.isEmpty()}">
+
+        <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Fecha de Creación</th>
+            <th>Nº Artículos</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+
+        <tbody>
+
+        <tr th:each="serie : ${series}">
+
+            <td th:text="${serie.nombre}"></td>
+
+            <td th:text="${serie.descripcion}"></td>
+
+            <td th:text="${#temporals.format(serie.fechaCreacion, 'dd/MM/yyyy')}"></td>
+
+            <td th:text="${serie.publicaciones.size()}"></td>
+
+            <td>
+
+                <div class="action-btns">
+
+                    <a th:href="@{/series/{id}(id=${serie.id})}"
+                       class="btn btn-secondary"
+                       target="_blank">
+                        Ver
+                    </a>
+
+                    <a th:href="@{/redactor/editar-serie/{id}(id=${serie.id})}"
+                       class="btn">
+                        Editar
+                    </a>
+
+                    <form th:action="@{/redactor/eliminar-serie/{id}(id=${serie.id})}"
+                          method="post"
+                          onsubmit="return confirm('¿Seguro que quieres eliminar esta colección? (No se borrarán los artículos)');">
+
+                        <button type="submit"
+                                class="btn btn-danger">
+                            Eliminar
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </td>
+
+        </tr>
+
+        </tbody>
+
+    </table>
+
+</div>
+
 </body>
 </html>
