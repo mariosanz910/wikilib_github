@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nueva Publicación - WikiLib</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="'https://cdn.tiny.cloud/1/' + ${@environment.getProperty('tinymce.api.key')} + '/tinymce/6/tinymce.min.js'"></script>
 </head>
 <body>
 
@@ -59,18 +60,15 @@
         </div>
 
         <div>
-            <label for="texto">Texto de la publicación:</label>
-            <textarea id="texto" name="texto" rows="10" required
-                      oninput="if(this.value.trim() === '') this.setCustomValidity('El texto no puede contener solo espacios'); else this.setCustomValidity('');"></textarea>
+            <label for="editor">Texto de la publicación:</label>
+            <textarea id="editor" name="texto"></textarea>
         </div>
 
-        <!-- BOTÓN IA -->
         <button type="button" id="btnMostrarIA"
                 style="background-color: #111111; color: white; margin-top: 15px; padding: 10px 20px; border: 1px solid #000; border-radius: 6px; cursor: pointer; font-size: 1em;">
             Completar con IA
         </button>
 
-        <!-- SECCIÓN IA -->
         <div id="seccionIA" style="display: none; margin-top: 20px; padding: 20px; background-color: #f3f3f3; border: 2px solid #000000; border-radius: 8px;">
 
             <h3 style="margin-top: 0; color: #111111;">Completar con IA</h3>
@@ -87,36 +85,30 @@
 
                     <button type="button" class="btn-ia" data-tipo="corto"
                             style="background-color: #1f1f1f; color: white; padding: 10px 18px; border: 1px solid #000; border-radius: 5px; cursor: pointer; font-size: 0.95em;">
-                        Corto <span style="font-size:0.8em; opacity:0.85;">(50 - 75 palabras)</span>
+                        Corto (50 - 75 palabras)
                     </button>
 
                     <button type="button" class="btn-ia" data-tipo="medio"
                             style="background-color: #1f1f1f; color: white; padding: 10px 18px; border: 1px solid #000; border-radius: 5px; cursor: pointer; font-size: 0.95em;">
-                        Medio <span style="font-size:0.8em; opacity:0.85;">(100 - 150 palabras)</span>
+                        Medio (100 - 150 palabras)
                     </button>
 
                     <button type="button" class="btn-ia" data-tipo="largo"
                             style="background-color: #1f1f1f; color: white; padding: 10px 18px; border: 1px solid #000; border-radius: 5px; cursor: pointer; font-size: 0.95em;">
-                        Largo <span style="font-size:0.8em; opacity:0.85;">(200+ palabras)</span>
+                        Largo (200+ palabras)
                     </button>
 
                 </div>
             </div>
 
-            <!-- CARGA -->
             <div id="cargandoIA" style="display: none; text-align: center; margin-top: 25px;">
-
                 <p style="color: #111111; font-weight: bold;">
-                    La IA está generando el contenido...
+                    Generando contenido...
                 </p>
-
                 <div style="display: inline-block; width: 40px; height: 40px; border: 4px solid #d6d6d6; border-top: 4px solid #111111; border-radius: 50%; animation: ia-spin 1s linear infinite;"></div>
-
             </div>
 
-            <!-- RESULTADO -->
             <div id="resultadoIA" style="display: none; margin-top: 25px;">
-
                 <h4 style="color: #111111;">Sugerencia generada:</h4>
 
                 <div id="textoGenerado"
@@ -124,7 +116,6 @@
                 </div>
 
                 <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
-
                     <button type="button" id="btnCopiarIA"
                             style="background-color: #111111; color: white; padding: 9px 18px; border: 1px solid #000; border-radius: 5px; cursor: pointer; font-size: 0.95em;">
                         Añadir al texto
@@ -139,11 +130,9 @@
                             style="background-color: #5a5a5a; color: white; padding: 9px 18px; border: 1px solid #000; border-radius: 5px; cursor: pointer; font-size: 0.95em;">
                         Cerrar
                     </button>
-
                 </div>
             </div>
         </div>
-        <!-- ========== FIN SECCIÓN IA ========== -->
 
         <div style="margin-top: 25px;">
             <button type="submit">Guardar publicación</button>
@@ -158,120 +147,191 @@
         0%   { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
-    .btn-ia:hover   { opacity: 0.85; }
+    .btn-ia:hover { opacity: 0.85; }
     #btnMostrarIA:hover { opacity: 0.9; }
+
+    .tox-tinymce {
+        border-radius: 6px;
+        border: 1px solid #ddd !important;
+        margin-top: 8px;
+    }
+
+    .tox-editor-header {
+        background-color: #f9f9f9 !important;
+    }
+
+    .tox-toolbar__primary {
+        background-color: #f9f9f9 !important;
+        border-bottom: 1px solid #ddd !important;
+    }
+
+    .tox-toolbar-overlord {
+        background-color: #f9f9f9 !important;
+    }
+
+    #editor {
+        display: none;
+    }
 </style>
 
-<script th:inline="javascript">
-    document.addEventListener('DOMContentLoaded', function () {
+<script>
+tinymce.init({
+  selector: '#editor',
+  plugins: 'lists link image table code help wordcount',
+  toolbar: 'undo redo | formatselect | bold italic underline strikethrough | alignleft aligncenter alignright | bullist numlist outdent indent | link image table | code help',
+  height: 500,
+  menubar: 'file edit view insert format tools table help',
+  content_style: "body { font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; }",
+  automatic_uploads: false,
+  language: 'es',
+  branding: false,
+  promotion: false
+});
 
-        // Referencias a elementos
-        const btnMostrarIA   = document.getElementById('btnMostrarIA');
-        const seccionIA      = document.getElementById('seccionIA');
-        const botonesIA      = document.querySelectorAll('.btn-ia');
-        const btnCopiarIA    = document.getElementById('btnCopiarIA');
-        const btnCancelarIA  = document.getElementById('btnCancelarIA');
-        const btnRegenerarIA = document.getElementById('btnRegenerarIA');
-        const textareaTexto  = document.getElementById('texto');
-        const inputTitulo    = document.getElementById('titulo');
-        const selectCategoria = document.getElementById('categoriaId');
+document.querySelector('form').addEventListener('submit', function(e) {
+  const content = tinymce.get('editor').getContent();
+  
+  if (!content || content.trim() === '' || content === '<p></p>' || content === '<p><br></p>') {
+    e.preventDefault();
+    alert('Por favor, escribe contenido en el editor antes de publicar.');
+    return false;
+  }
+});
+</script>
 
-        // Token CSRF para la petición AJAX
-        const csrfToken = document.querySelector('input[name="_csrf"]')
-                          ? document.querySelector('input[name="_csrf"]').value
-                          : null;
-        const csrfParam = document.querySelector('input[name^="_csrf"]')
-                          ? document.querySelector('input[name^="_csrf"]').name
-                          : '_csrf';
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  tinymce.init({
+    selector: '#editor',
+    plugins: 'lists link image table code help wordcount',
+    toolbar: 'undo redo | formatselect | bold italic underline strikethrough | alignleft aligncenter alignright | bullist numlist outdent indent | link image table | code help',
+    height: 500,
+    menubar: 'file edit view insert format tools table help',
+    content_style: "body { font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; }",
+    automatic_uploads: false,
+    language: 'es',
+    branding: false,
+    promotion: false
+  });
 
-        let tipoActual = 'medio'; // recuerda el tipo elegido para Regenerar
+  // Validación al enviar el formulario
+  const form = document.querySelector('form');
+  form.addEventListener('submit', function(e) {
+    const editor = tinymce.get('editor');
+    if (!editor) {
+      e.preventDefault();
+      alert('Error: El editor no está inicializado.');
+      return false;
+    }
+    
+    const content = editor.getContent();
+    
+    if (!content || content.trim() === '' || content === '<p></p>' || content === '<p><br></p>') {
+      e.preventDefault();
+      alert('Por favor, escribe contenido en el editor antes de publicar.');
+      return false;
+    }
+  });
 
-        // Mostrar u ocultar la sección IA
-        btnMostrarIA.addEventListener('click', function () {
-            const visible = seccionIA.style.display !== 'none';
-            seccionIA.style.display = visible ? 'none' : 'block';
-            btnMostrarIA.textContent = visible ? '✨ Completar con IA' : '✖ Ocultar IA';
-        });
+  // ===== FUNCIONALIDAD IA =====
+  const btnMostrarIA   = document.getElementById('btnMostrarIA');
+  const seccionIA      = document.getElementById('seccionIA');
+  const botonesIA      = document.querySelectorAll('.btn-ia');
+  const btnCopiarIA    = document.getElementById('btnCopiarIA');
+  const btnCancelarIA  = document.getElementById('btnCancelarIA');
+  const btnRegenerarIA = document.getElementById('btnRegenerarIA');
+  const inputTitulo    = document.getElementById('titulo');
+  const selectCategoria = document.getElementById('categoriaId');
 
-        // Función principal que llama al backend
-        async function generarContenido(tipo) {
-            tipoActual = tipo;
+  const csrfToken = document.querySelector('input[name="_csrf"]')
+                    ? document.querySelector('input[name="_csrf"]').value
+                    : null;
 
-            const titulo    = inputTitulo.value.trim();
-            const categoria = selectCategoria.options[selectCategoria.selectedIndex].text;
-            const texto     = textareaTexto.value.trim();
+  let tipoActual = 'medio';
 
-            if (!titulo) {
-                alert('❌ Escribe un título antes de usar la IA.');
-                return;
-            }
-            if (!texto) {
-                alert('❌ Escribe algo de contenido primero para que la IA pueda continuar.');
-                return;
-            }
+  btnMostrarIA.addEventListener('click', function () {
+    const visible = seccionIA.style.display !== 'none';
+    seccionIA.style.display = visible ? 'none' : 'block';
+    btnMostrarIA.textContent = visible ? 'Completar con IA' : 'Ocultar IA';
+  });
 
-            // Mostrar spinner, ocultar resultado anterior
-            document.getElementById('cargandoIA').style.display  = 'block';
-            document.getElementById('resultadoIA').style.display = 'none';
+  async function generarContenido(tipo) {
+    tipoActual = tipo;
 
-            try {
-                const headers = { 'Content-Type': 'application/json' };
-                if (csrfToken) headers['X-CSRF-TOKEN'] = csrfToken;
+    const titulo    = inputTitulo.value.trim();
+    const categoria = selectCategoria.options[selectCategoria.selectedIndex].text;
+    const editor = tinymce.get('editor');
+    const texto     = editor ? editor.getContent({ format: 'text' }).trim() : '';
 
-                const response = await fetch('/api/ia/completar-publicacion', {
-                    method: 'POST',
-                    headers: headers,
-                    body: JSON.stringify({
-                        titulo:          titulo,
-                        categoria:       categoria,
-                        contenidoActual: texto,
-                        tipo:            tipo
-                    })
-                });
+    if (!titulo) {
+      alert('Escribe un título antes de usar la IA.');
+      return;
+    }
+    if (!texto) {
+      alert('Escribe contenido primero para que la IA pueda continuar.');
+      return;
+    }
 
-                const data = await response.json();
-                document.getElementById('cargandoIA').style.display = 'none';
+    document.getElementById('cargandoIA').style.display  = 'block';
+    document.getElementById('resultadoIA').style.display = 'none';
 
-                if (data.exito) {
-                    document.getElementById('textoGenerado').textContent = data.contenidoGenerado;
-                    document.getElementById('resultadoIA').style.display = 'block';
-                } else {
-                    alert('' + (data.error || 'Error desconocido al generar contenido.'));
-                }
+    try {
+      const headers = { 'Content-Type': 'application/json' };
+      if (csrfToken) headers['X-CSRF-TOKEN'] = csrfToken;
 
-            } catch (error) {
-                document.getElementById('cargandoIA').style.display = 'none';
-                alert(' Error de conexión: ' + error.message);
-            }
-        }
+      const response = await fetch('/api/ia/completar-publicacion', {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({
+          titulo:          titulo,
+          categoria:       categoria,
+          contenidoActual: texto,
+          tipo:            tipo
+        })
+      });
 
-        // Botones corto / medio / largo
-        botonesIA.forEach(function (btn) {
-            btn.addEventListener('click', function () {
-                generarContenido(this.getAttribute('data-tipo'));
-            });
-        });
+      const data = await response.json();
+      document.getElementById('cargandoIA').style.display = 'none';
 
-        // Añadir el texto generado al textarea
-        btnCopiarIA.addEventListener('click', function () {
-            const generado = document.getElementById('textoGenerado').textContent;
-            textareaTexto.value = textareaTexto.value.trim()
-                                  ? textareaTexto.value + '\n\n' + generado
-                                  : generado;
-            document.getElementById('resultadoIA').style.display = 'none';
-            alert(' Contenido añadido al texto de la publicación.');
-        });
+      if (data.exito) {
+        document.getElementById('textoGenerado').textContent = data.contenidoGenerado;
+        document.getElementById('resultadoIA').style.display = 'block';
+      } else {
+        alert('Error: ' + (data.error || 'Error desconocido.'));
+      }
 
-        // Regenerar con el mismo tipo
-        btnRegenerarIA.addEventListener('click', function () {
-            generarContenido(tipoActual);
-        });
+    } catch (error) {
+      document.getElementById('cargandoIA').style.display = 'none';
+      alert('Error de conexión: ' + error.message);
+    }
+  }
 
-        // Cerrar resultado
-        btnCancelarIA.addEventListener('click', function () {
-            document.getElementById('resultadoIA').style.display = 'none';
-        });
+  botonesIA.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      generarContenido(this.getAttribute('data-tipo'));
     });
+  });
+
+  btnCopiarIA.addEventListener('click', function () {
+    const generado = document.getElementById('textoGenerado').textContent;
+    const editor = tinymce.get('editor');
+    const contenidoActual = editor.getContent();
+    
+    const contenidoNuevo = contenidoActual + '<p>' + generado + '</p>';
+    editor.setContent(contenidoNuevo);
+    
+    document.getElementById('resultadoIA').style.display = 'none';
+    alert('Contenido añadido al editor.');
+  });
+
+  btnRegenerarIA.addEventListener('click', function () {
+    generarContenido(tipoActual);
+  });
+
+  btnCancelarIA.addEventListener('click', function () {
+    document.getElementById('resultadoIA').style.display = 'none';
+  });
+});
 </script>
 
 </body>

@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Publicación - WikiLib</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="'https://cdn.tiny.cloud/1/' + ${@environment.getProperty('tinymce.api.key')} + '/tinymce/6/tinymce.min.js'"></script>
+
 </head>
 <body>
 
@@ -60,16 +62,65 @@
         </div>
 
         <div>
-            <label for="texto">Texto de la publicación:</label>
-            <textarea id="texto" name="texto" rows="10" required oninput="if(this.value.trim() === '') this.setCustomValidity('El texto no puede contener solo espacios'); else this.setCustomValidity('');" th:text="${publicacion.texto}"></textarea>
+            <label for="editor">Texto de la publicación:</label>
+            <textarea id="editor" name="texto" th:text="${publicacion.texto}"></textarea>
         </div>
 
         <button type="submit">Guardar cambios</button>
     </form>
 </div>
 
-    <div th:insert="fragments/footer :: footer"></div>
+<div th:insert="fragments/footer :: footer"></div>
+
+<style>
+    .tox-tinymce {
+        border-radius: 6px;
+        border: 1px solid #ddd !important;
+        margin-top: 8px;
+    }
+
+    .tox-editor-header {
+        background-color: #f9f9f9 !important;
+    }
+
+    .tox-toolbar__primary {
+        background-color: #f9f9f9 !important;
+        border-bottom: 1px solid #ddd !important;
+    }
+
+    .tox-toolbar-overlord {
+        background-color: #f9f9f9 !important;
+    }
+
+    #editor {
+        display: none;
+    }
+</style>
+
+<script>
+tinymce.init({
+  selector: '#editor',
+  plugins: 'lists link image table code help wordcount',
+  toolbar: 'undo redo | formatselect | bold italic underline strikethrough | alignleft aligncenter alignright | bullist numlist outdent indent | link image table | code help',
+  height: 500,
+  menubar: 'file edit view insert format tools table help',
+  content_style: "body { font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; }",
+  automatic_uploads: false,
+  language: 'es',
+  branding: false,
+  promotion: false
+});
+
+document.querySelector('form').addEventListener('submit', function(e) {
+  const content = tinymce.get('editor').getContent();
+  
+  if (!content || content.trim() === '' || content === '<p></p>' || content === '<p><br></p>') {
+    e.preventDefault();
+    alert('Por favor, escribe contenido en el editor antes de guardar.');
+    return false;
+  }
+});
+</script>
 
 </body>
 </html>
-
