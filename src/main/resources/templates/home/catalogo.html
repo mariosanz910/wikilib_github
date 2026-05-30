@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catálogo - WikiLib</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
     <style>
         /* Estilos para paginación */
         .pagination {
@@ -67,6 +69,7 @@
                 <span>Hola, <strong sec:authentication="name"></strong></span>
                 <a href="/series" class="btn">Colecciones</a>
                 <a sec:authorize="hasRole('REDACTOR')" href="/redactor/panel" class="btn">Mi Panel</a>
+                <a sec:authorize="hasRole('ADMIN')" href="/admin/dashboard" class="btn">Volver al Panel</a>
                 <a href="/logout" class="btn btn-danger">Cerrar sesión</a>
             </div>
         </div>
@@ -167,10 +170,104 @@
                 (adsbygoogle = window.adsbygoogle || []).push({});
             </script>
         </div>
+
+        <!-- SECCIÓN DE RECOMENDACIONES -->
+        <div style="margin: 50px 0; padding: 20px; background-color: #f9f9f9; border-radius: 8px; border-left: 4px solid #007bff;">
+            
+            <h2>¿Buscas algo específico?</h2>
+            <p>Cuéntanos qué te interesa y nuestro asistente de IA te recomendará los mejores títulos.</p>
+            
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <input type="text" id="preferenciaInput" placeholder="Ej: Programación en Python, Bases de datos..." 
+                       style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+                <button type="button" id="btnRecomendacion" class="btn" style="min-width: 120px;">
+                    Buscar recomendación
+                </button>
+            </div>
+            
+            <!-- Resultado de la recomendación -->
+            <div id="resultadoRecomendacion" style="margin-top: 20px; display: none;">
+                <div id="recomendacionTexto" style="padding: 15px; background-color: white; border-radius: 6px; border-left: 4px solid #28a745;"></div>
+            </div>
+            
+            <!-- Error -->
+            <div id="errorRecomendacion" style="margin-top: 20px; display: none;">
+                <div style="padding: 15px; background-color: #f8d7da; border-radius: 6px; border-left: 4px solid #dc3545; color: #721c24;"></div>
+            </div>
+            
+            <!-- Loading -->
+            <div id="loadingRecomendacion" style="margin-top: 20px; display: none; text-align: center;">
+                <p style="color: #666;">Buscando las mejores recomendaciones...</p>
+            </div>
+        </div>
+
+        <script>
+    document.getElementById('btnRecomendacion').addEventListener('click', function() {
+        const preferencia = document.getElementById('preferenciaInput').value.trim();
+        
+        if (!preferencia) {
+            alert('Por favor escribe qué te interesa.');
+            return;
+        }
+        
+        const loadingDiv = document.getElementById('loadingRecomendacion');
+        const resultDiv = document.getElementById('resultadoRecomendacion');
+        const errorDiv = document.getElementById('errorRecomendacion');
+        
+        // Limpiar resultados anteriores
+        resultDiv.style.display = 'none';
+        errorDiv.style.display = 'none';
+        loadingDiv.style.display = 'block';
+        
+        // Obtener el token CSRF del meta tag
+        const token = document.querySelector('meta[name="_csrf"]')?.getAttribute('content') || '';
+        const header = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
+        
+        const headers = {
+            'Content-Type': 'application/json'
+        };
+        
+        if (token) {
+            headers[header] = token;
+        }
+        
+        fetch('/api/recomendacion', {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({ preferencia: preferencia })
+        })
+        .then(response => response.json())
+        .then(data => {
+            loadingDiv.style.display = 'none';
+            
+            if (data.exito) {
+                document.getElementById('recomendacionTexto').textContent = data.recomendacion;
+                resultDiv.style.display = 'block';
+            } else {
+                document.getElementById('errorRecomendacion').innerHTML = 
+                    '<strong>' + (data.error || 'Error desconocido') + '</strong>';
+                errorDiv.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            loadingDiv.style.display = 'none';
+            document.getElementById('errorRecomendacion').innerHTML = 
+                '<strong>Error de conexión: ' + error.message + '</strong>';
+            errorDiv.style.display = 'block';
+        });
+    });
+    
+    // Permitir Enter para buscar
+    document.getElementById('preferenciaInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            document.getElementById('btnRecomendacion').click();
+        }
+    });
+</script>
+
     </div>
 
-        <div th:insert="fragments/footer :: footer"></div>
-
+    <div th:insert="fragments/footer :: footer"></div>
 
 </body>
 

@@ -1,16 +1,20 @@
 package com.tfg.wikilib.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.tfg.wikilib.model.Publicacion;
@@ -20,6 +24,7 @@ import com.tfg.wikilib.service.CategoriaService;
 import com.tfg.wikilib.service.ComentarioService;
 import com.tfg.wikilib.service.FavoritoService;
 import com.tfg.wikilib.service.PublicacionService;
+import com.tfg.wikilib.service.RecomendacionService;
 import com.tfg.wikilib.service.UsuarioService;
 import com.tfg.wikilib.service.ValoracionService;
 
@@ -32,6 +37,7 @@ public class HomeController {
     private final ValoracionService valoracionService;
     private final FavoritoService favoritoService;
     private final UsuarioService usuarioService;
+    private final RecomendacionService recomendacionService;
 
     // Constante: 15 resultados por página
     private static final int TAMAÑO_PAGINA = 15;
@@ -41,13 +47,15 @@ public class HomeController {
                           ComentarioService comentarioService,
                           ValoracionService valoracionService,
                           FavoritoService favoritoService,
-                          UsuarioService usuarioService) {
+                          UsuarioService usuarioService,
+                          RecomendacionService recomendacionService) {
         this.publicacionService = publicacionService;
         this.categoriaService = categoriaService;
         this.comentarioService = comentarioService;
         this.valoracionService = valoracionService;
         this.favoritoService = favoritoService;
         this.usuarioService = usuarioService;
+        this.recomendacionService = recomendacionService;
     }
 
     // Redirige la raíz al catálogo
@@ -156,5 +164,11 @@ public class HomeController {
         }
 
         return "home/publicacion";
+    }
+
+    @PostMapping("/api/recomendacion")
+    public ResponseEntity<Map<String, Object>> obtenerRecomendacion(@RequestBody Map<String, String> body) {
+        String preferencia = body.getOrDefault("preferencia", "").trim();
+        return ResponseEntity.ok(recomendacionService.obtenerRecomendacion(preferencia));
     }
 }
