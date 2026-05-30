@@ -57,6 +57,112 @@
             color: #666;
             font-size: 14px;
         }
+
+        /* Sección IA y Historial */
+        .section-box {
+            margin: 40px 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+
+        .section-box h3 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .section-box p {
+            margin: 0 0 15px 0;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .search-box button {
+            min-width: 100px;
+        }
+
+        .result-box {
+            margin-top: 15px;
+            padding: 12px;
+            background-color: white;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            color: #000;
+            display: none;
+        }
+
+        .result-box.show {
+            display: block;
+        }
+
+        .error-box {
+            margin-top: 15px;
+            padding: 12px;
+            background-color: white;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            color: #000;
+            display: none;
+        }
+
+        .error-box.show {
+            display: block;
+        }
+
+        .loading-box {
+            margin-top: 15px;
+            text-align: center;
+            color: #333;
+            display: none;
+        }
+
+        .loading-box.show {
+            display: block;
+        }
+
+        .history-item {
+            margin-top: 12px;
+            padding: 12px;
+            background-color: white;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .history-item strong {
+            color: #000;
+        }
+
+        .history-item .date {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .history-item .response {
+            margin-top: 8px;
+            padding: 8px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            font-size: 13px;
+            white-space: pre-wrap;
+            color: #000;
+        }
     </style>
 </head>
 
@@ -172,98 +278,98 @@
         </div>
 
         <!-- SECCIÓN DE RECOMENDACIONES -->
-        <div style="margin: 50px 0; padding: 20px; background-color: #f9f9f9; border-radius: 8px; border-left: 4px solid #007bff;">
+        <div class="section-box">
+            <h3>Buscador de Recomendaciones</h3>
+            <p>Cuéntanos qué te interesa y obtén recomendaciones personalizadas.</p>
             
-            <h2>¿Buscas algo específico?</h2>
-            <p>Cuéntanos qué te interesa y nuestro asistente de IA te recomendará los mejores títulos.</p>
-            
-            <div style="display: flex; gap: 10px; margin-top: 15px;">
-                <input type="text" id="preferenciaInput" placeholder="Ej: Programación en Python, Bases de datos..." 
-                       style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
-                <button type="button" id="btnRecomendacion" class="btn" style="min-width: 120px;">
-                    Buscar recomendación
-                </button>
+            <div class="search-box">
+                <input type="text" id="preferenciaInput" placeholder="Ej: Programación, Historia...">
+                <button type="button" id="btnRecomendacion" class="btn">Buscar</button>
             </div>
             
-            <!-- Resultado de la recomendación -->
-            <div id="resultadoRecomendacion" style="margin-top: 20px; display: none;">
-                <div id="recomendacionTexto" style="padding: 15px; background-color: white; border-radius: 6px; border-left: 4px solid #28a745;"></div>
+            <div id="loadingRecomendacion" class="loading-box">
+                Buscando recomendaciones...
             </div>
             
-            <!-- Error -->
-            <div id="errorRecomendacion" style="margin-top: 20px; display: none;">
-                <div style="padding: 15px; background-color: #f8d7da; border-radius: 6px; border-left: 4px solid #dc3545; color: #721c24;"></div>
+            <div id="resultadoRecomendacion" class="result-box">
+                <div id="recomendacionTexto"></div>
             </div>
             
-            <!-- Loading -->
-            <div id="loadingRecomendacion" style="margin-top: 20px; display: none; text-align: center;">
-                <p style="color: #666;">Buscando las mejores recomendaciones...</p>
+            <div id="errorRecomendacion" class="error-box">
+                <div id="errorTexto"></div>
+            </div>
+        </div>
+
+        <!-- HISTORIAL DE RECOMENDACIONES -->
+        <div th:if="${!historialRecomendaciones.isEmpty()}" class="section-box">
+            <h3>Historial de Búsquedas</h3>
+            <p>Tus últimas 3 recomendaciones</p>
+            
+            <div th:each="historial : ${historialRecomendaciones}" class="history-item">
+                <strong>Buscaste: </strong><span th:text="${historial.preferencia}"></span>
+                <div class="date" th:text="${#temporals.format(historial.fechaBusqueda, 'dd/MM/yyyy HH:mm')}"></div>
+                <div class="response" th:text="${historial.respuesta}"></div>
             </div>
         </div>
 
         <script>
-    document.getElementById('btnRecomendacion').addEventListener('click', function() {
-        const preferencia = document.getElementById('preferenciaInput').value.trim();
-        
-        if (!preferencia) {
-            alert('Por favor escribe qué te interesa.');
-            return;
-        }
-        
-        const loadingDiv = document.getElementById('loadingRecomendacion');
-        const resultDiv = document.getElementById('resultadoRecomendacion');
-        const errorDiv = document.getElementById('errorRecomendacion');
-        
-        // Limpiar resultados anteriores
-        resultDiv.style.display = 'none';
-        errorDiv.style.display = 'none';
-        loadingDiv.style.display = 'block';
-        
-        // Obtener el token CSRF del meta tag
-        const token = document.querySelector('meta[name="_csrf"]')?.getAttribute('content') || '';
-        const header = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
-        
-        const headers = {
-            'Content-Type': 'application/json'
-        };
-        
-        if (token) {
-            headers[header] = token;
-        }
-        
-        fetch('/api/recomendacion', {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify({ preferencia: preferencia })
-        })
-        .then(response => response.json())
-        .then(data => {
-            loadingDiv.style.display = 'none';
+            document.getElementById('btnRecomendacion').addEventListener('click', function() {
+                const preferencia = document.getElementById('preferenciaInput').value.trim();
+                
+                if (!preferencia) {
+                    alert('Por favor escribe qué te interesa.');
+                    return;
+                }
+                
+                const loadingDiv = document.getElementById('loadingRecomendacion');
+                const resultDiv = document.getElementById('resultadoRecomendacion');
+                const errorDiv = document.getElementById('errorRecomendacion');
+                
+                resultDiv.classList.remove('show');
+                errorDiv.classList.remove('show');
+                loadingDiv.classList.add('show');
+                
+                const token = document.querySelector('meta[name="_csrf"]')?.getAttribute('content') || '';
+                const header = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
+                
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                
+                if (token) {
+                    headers[header] = token;
+                }
+                
+                fetch('/api/recomendacion', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({ preferencia: preferencia })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    loadingDiv.classList.remove('show');
+                    
+                    if (data.exito) {
+                        document.getElementById('recomendacionTexto').textContent = data.recomendacion;
+                        resultDiv.classList.add('show');
+                    } else {
+                        document.getElementById('errorTexto').textContent = data.error || 'Error desconocido';
+                        errorDiv.classList.add('show');
+                    }
+                })
+                .catch(error => {
+                    loadingDiv.classList.remove('show');
+                    document.getElementById('errorTexto').textContent = 'Error de conexión: ' + error.message;
+                    errorDiv.classList.add('show');
+                });
+            });
             
-            if (data.exito) {
-                document.getElementById('recomendacionTexto').textContent = data.recomendacion;
-                resultDiv.style.display = 'block';
-            } else {
-                document.getElementById('errorRecomendacion').innerHTML = 
-                    '<strong>' + (data.error || 'Error desconocido') + '</strong>';
-                errorDiv.style.display = 'block';
-            }
-        })
-        .catch(error => {
-            loadingDiv.style.display = 'none';
-            document.getElementById('errorRecomendacion').innerHTML = 
-                '<strong>Error de conexión: ' + error.message + '</strong>';
-            errorDiv.style.display = 'block';
-        });
-    });
-    
-    // Permitir Enter para buscar
-    document.getElementById('preferenciaInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            document.getElementById('btnRecomendacion').click();
-        }
-    });
-</script>
+            document.getElementById('preferenciaInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('btnRecomendacion').click();
+                }
+            });
+        </script>
 
     </div>
 

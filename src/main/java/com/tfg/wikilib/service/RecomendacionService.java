@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.tfg.wikilib.model.Publicacion;
+import com.tfg.wikilib.model.Usuario;
 import com.tfg.wikilib.repository.PublicacionRepository;
 
 @Service
@@ -22,6 +23,7 @@ public class RecomendacionService {
 
     private final PublicacionRepository publicacionRepository;
     private final RestTemplate restTemplate;
+    private final HistorialRecomendacionService historialRecomendacionService;
 
     @Value("${groq.api.key}")
     private String apiKey;
@@ -32,12 +34,15 @@ public class RecomendacionService {
     @Value("${groq.model}")
     private String model;
 
-    public RecomendacionService(PublicacionRepository publicacionRepository, RestTemplate restTemplate) {
+    public RecomendacionService(PublicacionRepository publicacionRepository, 
+                                RestTemplate restTemplate,
+                                HistorialRecomendacionService historialRecomendacionService) {
         this.publicacionRepository = publicacionRepository;
         this.restTemplate = restTemplate;
+        this.historialRecomendacionService = historialRecomendacionService;
     }
 
-    public Map<String, Object> obtenerRecomendacion(String preferencia) {
+    public Map<String, Object> obtenerRecomendacion(String preferencia, Usuario usuario) {
         if (preferencia == null || preferencia.trim().isEmpty()) {
             return Map.of(
                     "exito", false,
@@ -64,6 +69,11 @@ public class RecomendacionService {
                         "exito", false,
                         "error", recomendacion
                 );
+            }
+
+            // Paso 3: Guardar en historial si el usuario está autenticado
+            if (usuario != null) {
+                historialRecomendacionService.guardarBusqueda(usuario, preferencia, recomendacion);
             }
 
             return Map.of(
@@ -93,7 +103,7 @@ public class RecomendacionService {
                     return java.util.Arrays.stream(palabras)
                             .anyMatch(palabra -> textoCompleto.contains(palabra));
                 })
-                .limit(20) // Máximo 20 publicaciones para no saturar la IA
+                .limit(20)
                 .collect(Collectors.toList());
     }
 
@@ -120,9 +130,6 @@ public class RecomendacionService {
                 Títulos de publicaciones recomendadas
                 - [Título 1]
                 - [Título 2]
-                - [Título 3]
-
-                
 
                 REGLAS OBLIGATORIAS:
                 - Responde SOLO con el formato anterior. NADA MÁS.

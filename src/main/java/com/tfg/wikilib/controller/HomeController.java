@@ -23,6 +23,7 @@ import com.tfg.wikilib.model.Usuario;
 import com.tfg.wikilib.service.CategoriaService;
 import com.tfg.wikilib.service.ComentarioService;
 import com.tfg.wikilib.service.FavoritoService;
+import com.tfg.wikilib.service.HistorialRecomendacionService;
 import com.tfg.wikilib.service.PublicacionService;
 import com.tfg.wikilib.service.RecomendacionService;
 import com.tfg.wikilib.service.UsuarioService;
@@ -38,6 +39,7 @@ public class HomeController {
     private final FavoritoService favoritoService;
     private final UsuarioService usuarioService;
     private final RecomendacionService recomendacionService;
+    private final HistorialRecomendacionService historialRecomendacionService;
 
     // Constante: 15 resultados por página
     private static final int TAMAÑO_PAGINA = 15;
@@ -48,7 +50,8 @@ public class HomeController {
                           ValoracionService valoracionService,
                           FavoritoService favoritoService,
                           UsuarioService usuarioService,
-                          RecomendacionService recomendacionService) {
+                          RecomendacionService recomendacionService,
+                          HistorialRecomendacionService historialRecomendacionService) {
         this.publicacionService = publicacionService;
         this.categoriaService = categoriaService;
         this.comentarioService = comentarioService;
@@ -56,6 +59,7 @@ public class HomeController {
         this.favoritoService = favoritoService;
         this.usuarioService = usuarioService;
         this.recomendacionService = recomendacionService;
+        this.historialRecomendacionService = historialRecomendacionService;
     }
 
     // Redirige la raíz al catálogo
@@ -89,7 +93,7 @@ public class HomeController {
             List<Publicacion> publicacionesFavoritas = publicacionService.buscarFavoritos(usuario);
             model.addAttribute("favoritosSeleccionado", true);
             
-            // Convertir List a Page manualmente (opcional: también puedes paginar aquí)
+            // Convertir List a Page manualmente
             int start = page * TAMAÑO_PAGINA;
             int end = Math.min(start + TAMAÑO_PAGINA, publicacionesFavoritas.size());
             List<Publicacion> pageContent = publicacionesFavoritas.subList(start, end);
@@ -122,6 +126,12 @@ public class HomeController {
         model.addAttribute("hasPrevious", pagePublicaciones.hasPrevious());
         model.addAttribute("hasNext", pagePublicaciones.hasNext());
         model.addAttribute("totalElements", pagePublicaciones.getTotalElements());
+
+        // Agregar historial de recomendaciones si el usuario está autenticado
+        if (authentication != null && authentication.isAuthenticated()) {
+            Usuario usuario = usuarioService.buscarPorNombreUsuario(authentication.getName());
+            model.addAttribute("historialRecomendaciones", historialRecomendacionService.obtenerUltimas3(usuario));
+        }
 
         return "home/catalogo";
     }
@@ -167,8 +177,16 @@ public class HomeController {
     }
 
     @PostMapping("/api/recomendacion")
-    public ResponseEntity<Map<String, Object>> obtenerRecomendacion(@RequestBody Map<String, String> body) {
+    public ResponseEntity<Map<String, Object>> obtenerRecomendacion(
+            @RequestBody Map<String, String> body,
+            Authentication authentication) {
         String preferencia = body.getOrDefault("preferencia", "").trim();
-        return ResponseEntity.ok(recomendacionService.obtenerRecomendacion(preferencia));
+        
+        Usuario usuario = null;
+        if (authentication != null && authentication.isAuthenticated()) {
+            usuario = usuarioService.buscarPorNombreUsuario(authentication.getName());
+        }
+        
+        return ResponseEntity.ok(recomendacionService.obtenerRecomendacion(preferencia, usuario));
     }
 }
