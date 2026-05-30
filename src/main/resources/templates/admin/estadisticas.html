@@ -5,6 +5,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Estadísticas Generales - WikiLib</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-box {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        .stat-box h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .stat-box .number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #000000;
+        }
+
+        .section-title {
+            margin-top: 50px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #000000;
+            font-size: 22px;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        table th {
+            background-color: #131212;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+            border-bottom: 2px solid #ddd;
+        }
+
+        table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        table tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .rank {
+            font-weight: bold;
+            color: #000000;
+            min-width: 30px;
+        }
+    </style>
 </head>
 <body>
 
@@ -13,6 +80,104 @@
         <h1>Estadísticas Generales</h1>
         <a href="/admin/dashboard" class="btn">Volver al Panel</a>
     </div>
+
+    <!-- SECCIÓN: ESTADÍSTICAS DE RECOMENDACIONES -->
+    <div class="section-title">Estadísticas del Sistema de Recomendaciones</div>
+
+    <div class="stats-grid">
+        <div class="stat-box">
+            <h3>Total de Búsquedas</h3>
+            <div class="number" th:text="${totalBusquedas}">0</div>
+        </div>
+        <div class="stat-box">
+            <h3>Promedio por Usuario</h3>
+            <div class="number" th:text="${#numbers.formatDecimal(promedioBusquedas, 1, 2)}">0.00</div>
+        </div>
+    </div>
+
+    <!-- Top 10 Temas Más Consultados -->
+    <div style="margin-bottom: 40px;">
+        <h2>Top 10 Temas Más Consultados</h2>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">Ranking</th>
+                        <th>Tema</th>
+                        <th style="width: 120px;">Búsquedas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item, iterStat : ${top10Temas}">
+                        <td class="rank" th:text="${iterStat.count}"></td>
+                        <td th:text="${item.tema}"></td>
+                        <td th:text="${item.cantidad}"></td>
+                    </tr>
+                    <tr th:if="${top10Temas.isEmpty()}">
+                        <td colspan="3" style="text-align: center; color: #999;">No hay datos disponibles</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Top 10 Publicaciones Más Recomendadas -->
+    <div style="margin-bottom: 40px;">
+        <h2>Top 10 Publicaciones Más Recomendadas</h2>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">Ranking</th>
+                        <th>Publicación</th>
+                        <th style="width: 120px;">Recomendaciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item, iterStat : ${top10Publicaciones}">
+                        <td class="rank" th:text="${iterStat.count}"></td>
+                        <td th:text="${item.titulo}"></td>
+                        <td th:text="${item.cantidad}"></td>
+                    </tr>
+                    <tr th:if="${top10Publicaciones.isEmpty()}">
+                        <td colspan="3" style="text-align: center; color: #999;">No hay datos disponibles</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    <!-- Lectores Más Activos por Búsquedas -->
+    <div style="margin-bottom: 40px;">
+        <h2>Top 10 Lectores por Búsquedas Realizadas</h2>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">Ranking</th>
+                        <th>Usuario</th>
+                        <th>Nombre Completo</th>
+                        <th style="width: 120px;">Búsquedas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item, iterStat : ${lectoresMasActivos}">
+                        <td class="rank" th:text="${iterStat.count}"></td>
+                        <td th:text="${item.nombreUsuario}"></td>
+                        <td th:text="${item.nombreCompleto}"></td>
+                        <td th:text="${item.busquedas}"></td>
+                    </tr>
+                    <tr th:if="${lectoresMasActivos.isEmpty()}">
+                        <td colspan="4" style="text-align: center; color: #999;">No hay datos disponibles</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- SECCIÓN: ESTADÍSTICAS GENERALES DEL SISTEMA -->
+    <div class="section-title">Estadísticas Generales del Sistema</div>
 
     <!-- Top Publicaciones -->
     <div style="margin-bottom: 40px;">
@@ -33,6 +198,9 @@
                         <td th:text="${pub.autor.nombreUsuario}"></td>
                         <td th:text="${pub.visitas}"></td>
                         <td th:text="${pub.valoracion}"></td>
+                    </tr>
+                    <tr th:if="${topPublicaciones.isEmpty()}">
+                        <td colspan="4" style="text-align: center; color: #999;">No hay datos disponibles</td>
                     </tr>
                 </tbody>
             </table>
@@ -57,6 +225,9 @@
                         <td th:text="${item[0].nombreCompleto}"></td>
                         <td th:text="${item[1]}"></td>
                     </tr>
+                    <tr th:if="${topRedactores.isEmpty()}">
+                        <td colspan="3" style="text-align: center; color: #999;">No hay datos disponibles</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -78,13 +249,16 @@
                         <td th:text="${item[0].nombre}"></td>
                         <td th:text="${item[1]}"></td>
                     </tr>
+                    <tr th:if="${topCategorias.isEmpty()}">
+                        <td colspan="2" style="text-align: center; color: #999;">No hay datos disponibles</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
-    <div th:insert="fragments/footer :: footer"></div>
 
+    <div th:insert="fragments/footer :: footer"></div>
 
 </body>
 </html>

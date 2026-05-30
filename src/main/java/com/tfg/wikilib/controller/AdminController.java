@@ -17,6 +17,7 @@ import com.tfg.wikilib.model.Categoria;
 import com.tfg.wikilib.model.Reporte;
 import com.tfg.wikilib.model.Usuario;
 import com.tfg.wikilib.service.CategoriaService;
+import com.tfg.wikilib.service.HistorialRecomendacionService;
 import com.tfg.wikilib.service.PublicacionService;
 import com.tfg.wikilib.service.ReporteService;
 import com.tfg.wikilib.service.UsuarioService;
@@ -33,6 +34,7 @@ public class AdminController {
     private final ReporteService reporteService;
     private final CategoriaService categoriaService;
     private final PublicacionService publicacionService;
+    private final HistorialRecomendacionService historialRecomendacionService;
 
     // Constante: 15 resultados por página
     private static final int TAMAÑO_PAGINA = 15;
@@ -40,11 +42,13 @@ public class AdminController {
     public AdminController(UsuarioService usuarioService,
                            ReporteService reporteService,
                            CategoriaService categoriaService,
-                           PublicacionService publicacionService) {
+                           PublicacionService publicacionService,
+                           HistorialRecomendacionService historialRecomendacionService) {
         this.usuarioService = usuarioService;
         this.reporteService = reporteService;
         this.categoriaService = categoriaService;
         this.publicacionService = publicacionService;
+        this.historialRecomendacionService = historialRecomendacionService;
     }
 
     @GetMapping("/dashboard")
@@ -149,6 +153,15 @@ public class AdminController {
         model.addAttribute("topPublicaciones", publicacionService.obtenerTop5Leidas());
         model.addAttribute("topRedactores", usuarioService.obtenerRedactoresMasActivos());
         model.addAttribute("topCategorias", categoriaService.obtenerCategoriasPopulares());
+        
+        // Estadísticas de recomendaciones
+        model.addAttribute("totalBusquedas", historialRecomendacionService.obtenerTotalBusquedas());
+        model.addAttribute("promedioBusquedas", historialRecomendacionService.obtenerPromedioBusquedasPorUsuario());
+        model.addAttribute("top10Temas", historialRecomendacionService.obtenerTop10Temas());
+        model.addAttribute("top10Publicaciones", historialRecomendacionService.obtenerTop10PublicacionesRecomendadas());
+        model.addAttribute("redactoresMasActivos", historialRecomendacionService.obtenerRedactoresMasActivosPorBusquedas());
+        model.addAttribute("lectoresMasActivos", historialRecomendacionService.obtenerLectoresMasActivosPorBusquedas());
+        
         return "admin/estadisticas";
     }
 }
