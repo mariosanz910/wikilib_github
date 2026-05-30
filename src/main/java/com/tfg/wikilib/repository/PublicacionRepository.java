@@ -40,4 +40,11 @@ public interface PublicacionRepository extends JpaRepository<Publicacion, Long> 
     Optional<Publicacion> findFirstBySerieAndOrdenGreaterThanOrderByOrdenAsc(Serie serie, Integer orden);
     
     Optional<Publicacion> findFirstBySerieAndOrdenLessThanOrderByOrdenDesc(Serie serie, Integer orden);
+
+    // Métodos para excluir publicaciones leídas (ocultar leídas)
+    Page<Publicacion> findByIdNotInOrderByFechaCreacionDesc(List<Long> ids, Pageable pageable);
+
+    Page<Publicacion> findByTituloContainingIgnoreCaseAndIdNotInOrderByFechaCreacionDesc(String titulo, List<Long> ids, Pageable pageable);
+
+    Page<Publicacion> findByCategoriaIdAndIdNotInOrderByFechaCreacionDesc(Long categoriaId, List<Long> ids, Pageable pageable);
 }

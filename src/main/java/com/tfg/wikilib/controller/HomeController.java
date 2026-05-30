@@ -24,6 +24,7 @@ import com.tfg.wikilib.service.CategoriaService;
 import com.tfg.wikilib.service.ComentarioService;
 import com.tfg.wikilib.service.FavoritoService;
 import com.tfg.wikilib.service.HistorialRecomendacionService;
+import com.tfg.wikilib.service.PublicacionLeidaService;
 import com.tfg.wikilib.service.PublicacionService;
 import com.tfg.wikilib.service.RecomendacionService;
 import com.tfg.wikilib.service.UsuarioService;
@@ -40,6 +41,7 @@ public class HomeController {
     private final UsuarioService usuarioService;
     private final RecomendacionService recomendacionService;
     private final HistorialRecomendacionService historialRecomendacionService;
+    private final PublicacionLeidaService publicacionLeidaService;
 
     // Constante: 15 resultados por página
     private static final int TAMAÑO_PAGINA = 15;
@@ -51,7 +53,8 @@ public class HomeController {
                           FavoritoService favoritoService,
                           UsuarioService usuarioService,
                           RecomendacionService recomendacionService,
-                          HistorialRecomendacionService historialRecomendacionService) {
+                          HistorialRecomendacionService historialRecomendacionService,
+                          PublicacionLeidaService publicacionLeidaService) {
         this.publicacionService = publicacionService;
         this.categoriaService = categoriaService;
         this.comentarioService = comentarioService;
@@ -60,6 +63,7 @@ public class HomeController {
         this.usuarioService = usuarioService;
         this.recomendacionService = recomendacionService;
         this.historialRecomendacionService = historialRecomendacionService;
+        this.publicacionLeidaService = publicacionLeidaService;
     }
 
     // Redirige la raíz al catálogo
@@ -73,6 +77,7 @@ public class HomeController {
     public String catalogo(@RequestParam(required = false) String buscar,
                            @RequestParam(required = false) Long categoria,
                            @RequestParam(required = false) boolean favoritos,
+                           @RequestParam(required = false) boolean ocultarLeidas,
                            @RequestParam(defaultValue = "0") int page,
                            Authentication authentication,
                            Model model) {
@@ -87,12 +92,31 @@ public class HomeController {
 
         Page<Publicacion> pagePublicaciones;
 
+        // Obtener IDs leídas si procede
+        boolean filtrarLeidas = ocultarLeidas && authentication != null && authentication.isAuthenticated();
+        List<Long> idsLeidas = List.of();
+        if (filtrarLeidas) {
+            Usuario usuario = usuarioService.buscarPorNombreUsuario(authentication.getName());
+            idsLeidas = publicacionLeidaService.obtenerIdsLeidas(usuario);
+            if (idsLeidas.isEmpty()) {
+                filtrarLeidas = false; // nada que excluir, evitar query IN vacío
+            }
+        }
+
         if (favoritos && authentication != null && authentication.isAuthenticated()) {
             // Favoritos: se cargan sin paginar (lista personal)
             Usuario usuario = usuarioService.buscarPorNombreUsuario(authentication.getName());
             List<Publicacion> publicacionesFavoritas = publicacionService.buscarFavoritos(usuario);
             model.addAttribute("favoritosSeleccionado", true);
-            
+
+            // Filtrar leídas en memoria si está activo
+            if (filtrarLeidas) {
+                final List<Long> ids = idsLeidas;
+                publicacionesFavoritas = publicacionesFavoritas.stream()
+                        .filter(p -> !ids.contains(p.getId()))
+                        .toList();
+            }
+
             // Convertir List a Page manualmente
             int start = page * TAMAÑO_PAGINA;
             int end = Math.min(start + TAMAÑO_PAGINA, publicacionesFavoritas.size());
@@ -104,22 +128,29 @@ public class HomeController {
             );
         } else if (buscar != null && !buscar.isBlank()) {
             // Búsqueda por título PAGINADA
-            pagePublicaciones = publicacionService.buscarPorTitulo(buscar, pageable);
             model.addAttribute("buscar", buscar);
+            pagePublicaciones = filtrarLeidas
+                    ? publicacionService.buscarPorTituloExcluyendo(buscar, idsLeidas, pageable)
+                    : publicacionService.buscarPorTitulo(buscar, pageable);
         } else if (categoria != null) {
             // Filtro por categoría PAGINADO
-            pagePublicaciones = publicacionService.buscarPorCategoria(categoria, pageable);
             model.addAttribute("categoriaSeleccionada", categoria);
+            pagePublicaciones = filtrarLeidas
+                    ? publicacionService.buscarPorCategoriaExcluyendo(categoria, idsLeidas, pageable)
+                    : publicacionService.buscarPorCategoria(categoria, pageable);
         } else {
             // Todas las publicaciones PAGINADAS
-            pagePublicaciones = publicacionService.obtenerTodas(pageable);
+            pagePublicaciones = filtrarLeidas
+                    ? publicacionService.obtenerTodasExcluyendo(idsLeidas, pageable)
+                    : publicacionService.obtenerTodas(pageable);
         }
 
         // Pasar la página de resultados a la vista
         model.addAttribute("page", pagePublicaciones);
         model.addAttribute("publicaciones", pagePublicaciones.getContent());
         model.addAttribute("categorias", categoriaService.obtenerTodas());
-        
+        model.addAttribute("ocultarLeidas", ocultarLeidas);
+
         // Datos útiles para la vista
         model.addAttribute("totalPages", pagePublicaciones.getTotalPages());
         model.addAttribute("currentPage", page);
@@ -155,6 +186,9 @@ public class HomeController {
         // Comprobar interacción del usuario autenticado (guard contra null/anónimo)
         if (authentication != null && authentication.isAuthenticated()) {
             Usuario usuario = usuarioService.buscarPorNombreUsuario(authentication.getName());
+
+            // Marcar como leída automáticamente
+            publicacionLeidaService.marcarComoLeida(usuario, publicacion);
 
             valoracionService.obtenerMiValoracion(usuario, publicacion).ifPresent(val ->
                 model.addAttribute("miValoracion", val.getTipo().name())

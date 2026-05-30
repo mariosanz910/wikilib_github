@@ -106,6 +106,26 @@ CREATE TABLE reporte (
     FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE
 );
 
+CREATE TABLE publicacion_leida (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    usuario_id BIGINT NOT NULL,
+    publicacion_id BIGINT NOT NULL,
+    fecha_lectura DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (id),
+    UNIQUE KEY uq_usuario_publicacion (usuario_id, publicacion_id),
+
+    CONSTRAINT fk_leida_usuario
+        FOREIGN KEY (usuario_id)
+        REFERENCES usuario(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_leida_publicacion
+        FOREIGN KEY (publicacion_id)
+        REFERENCES entrada(id)
+        ON DELETE CASCADE
+);
+
 
 -- Categorías predefinidas ordenadas alfabéticamente
 INSERT INTO categoria (nombre, descripcion) VALUES

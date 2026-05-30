@@ -104,4 +104,17 @@ public class PublicacionService {
         }
         return publicacionRepository.findByAutorAndTituloContainingIgnoreCaseOrderByFechaCreacionDesc(autor, filtro);
     }
+
+    // Métodos para ocultar leídas en catálogo
+    public Page<Publicacion> obtenerTodasExcluyendo(List<Long> idsLeidas, Pageable pageable) {
+        return publicacionRepository.findByIdNotInOrderByFechaCreacionDesc(idsLeidas, pageable);
+    }
+
+    public Page<Publicacion> buscarPorTituloExcluyendo(String titulo, List<Long> idsLeidas, Pageable pageable) {
+        return publicacionRepository.findByTituloContainingIgnoreCaseAndIdNotInOrderByFechaCreacionDesc(titulo, idsLeidas, pageable);
+    }
+
+    public Page<Publicacion> buscarPorCategoriaExcluyendo(Long categoriaId, List<Long> idsLeidas, Pageable pageable) {
+        return publicacionRepository.findByCategoriaIdAndIdNotInOrderByFechaCreacionDesc(categoriaId, idsLeidas, pageable);
+    }
 }
