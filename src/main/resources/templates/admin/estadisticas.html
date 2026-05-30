@@ -121,32 +121,6 @@
         </div>
     </div>
 
-    <!-- Top 10 Publicaciones Más Recomendadas -->
-    <div style="margin-bottom: 40px;">
-        <h2>Top 10 Publicaciones Más Recomendadas</h2>
-        <div style="overflow-x: auto;">
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width: 50px;">Ranking</th>
-                        <th>Publicación</th>
-                        <th style="width: 120px;">Recomendaciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="item, iterStat : ${top10Publicaciones}">
-                        <td class="rank" th:text="${iterStat.count}"></td>
-                        <td th:text="${item.titulo}"></td>
-                        <td th:text="${item.cantidad}"></td>
-                    </tr>
-                    <tr th:if="${top10Publicaciones.isEmpty()}">
-                        <td colspan="3" style="text-align: center; color: #999;">No hay datos disponibles</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
 
     <!-- Lectores Más Activos por Búsquedas -->
     <div style="margin-bottom: 40px;">
