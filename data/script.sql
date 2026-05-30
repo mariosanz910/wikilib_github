@@ -21,6 +21,17 @@ CREATE TABLE categoria (
     descripcion TEXT
 );
 
+-- Tabla de Historial de recomendación
+CREATE TABLE historial_recomendacion (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id BIGINT NOT NULL,
+    preferencia VARCHAR(500) NOT NULL,
+    respuesta LONGTEXT NOT NULL,
+    fecha_busqueda DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE,
+    INDEX idx_usuario_fecha (usuario_id, fecha_busqueda DESC)
+);
+
 -- Tabla de Series (Colecciones de entradas)
 CREATE TABLE serie (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -492,4 +503,85 @@ VALUES
 'Introducción al derecho constitucional',
 'El derecho constitucional regula la estructura fundamental de un Estado.',
 2, 9, NULL, NULL, 'PUBLICADO', 10, NOW()
+);
+
+-- SERIE: MY CHEMICAL ROMANCE
+
+INSERT INTO serie (nombre, descripcion, usuario_id)
+VALUES
+('Historia de My Chemical Romance',
+ 'Colección dedicada a la historia, evolución, discos y legado de la banda My Chemical Romance.',
+ 2);
+
+-- ENTRADAS
+
+INSERT INTO entrada
+(titulo, contenido, usuario_id, categoria_id, serie_id, orden_en_serie, estado, valoracion, fecha_publicacion)
+VALUES
+
+(
+'Los inicios de My Chemical Romance',
+'My Chemical Romance fue fundada en 2001 en Nueva Jersey por Gerard Way y Matt Pelissier. La banda nació poco después de los atentados del 11 de septiembre, evento que inspiró a Gerard Way a dedicarse a la música.',
+2, 26, 6, 1, 'PUBLICADO', 28, NOW()
+),
+
+(
+'Three Cheers for Sweet Revenge',
+'El álbum "Three Cheers for Sweet Revenge" marcó el ascenso internacional de My Chemical Romance gracias a canciones como "Helena" y "I’m Not Okay". El disco consolidó el estilo emo y post-hardcore de la banda.',
+2, 26, 6, 2, 'PUBLICADO', 35, NOW()
+),
+
+(
+'The Black Parade y el éxito mundial',
+'"The Black Parade" fue publicado en 2006 y se convirtió en el trabajo más icónico de la banda. El álbum conceptual narra la historia de un personaje conocido como The Patient y contiene canciones legendarias como "Welcome to the Black Parade".',
+2, 26, 6, 3, 'PUBLICADO', 42, NOW()
+),
+
+(
+'La separación de la banda',
+'En 2013, My Chemical Romance anunció oficialmente su separación. La noticia impactó profundamente a millones de fans alrededor del mundo y marcó el final de una etapa importante dentro del rock alternativo.',
+2, 26, 6, 4, 'PUBLICADO', 31, NOW()
+),
+
+(
+'El regreso de My Chemical Romance',
+'En 2019, la banda anunció su regreso oficial con nuevos conciertos y giras internacionales. El regreso de My Chemical Romance fue recibido con enorme entusiasmo por parte de la comunidad musical y sus seguidores.',
+2, 26, 6, 5, 'PUBLICADO', 47, NOW()
+);
+
+INSERT INTO reporte (entrada_id, usuario_id, motivo, resuelto, fecha_creacion) VALUES
+(
+    41,
+    3,
+    'Contenido potencialmente duplicado respecto a otras publicaciones sobre la banda.',
+    FALSE,
+    NOW()
+),
+(
+    42,
+    3,
+    'El artículo contiene información incompleta sobre el contexto del álbum.',
+    FALSE,
+    NOW()
+),
+(
+    43,
+    3,
+    'El contenido incluye errores en fechas relacionadas con el lanzamiento del disco.',
+    FALSE,
+    NOW()
+),
+(
+    44,
+    3,
+    'Lenguaje demasiado subjetivo y poco neutral para una publicación enciclopédica.',
+    FALSE,
+    NOW()
+),
+(
+    45,
+    3,
+    'La publicación necesita más referencias y detalles sobre la gira de regreso.',
+    FALSE,
+    NOW()
 );
