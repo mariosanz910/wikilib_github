@@ -1,23 +1,29 @@
 package com.tfg.wikilib.controller;
 
-import com.tfg.wikilib.model.Publicacion;
-import com.tfg.wikilib.model.Usuario;
-import com.tfg.wikilib.model.Categoria;
-import com.tfg.wikilib.model.Serie;
-import com.tfg.wikilib.service.CategoriaService;
-import com.tfg.wikilib.service.PublicacionService;
-import com.tfg.wikilib.service.UsuarioService;
-import com.tfg.wikilib.service.SerieService;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.tfg.wikilib.model.Categoria;
+import com.tfg.wikilib.model.Publicacion;
+import com.tfg.wikilib.model.Serie;
+import com.tfg.wikilib.model.Usuario;
+import com.tfg.wikilib.service.CategoriaService;
+import com.tfg.wikilib.service.PublicacionService;
+import com.tfg.wikilib.service.SerieService;
+import com.tfg.wikilib.service.UsuarioService;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Controller
 @RequestMapping("/redactor")
@@ -42,10 +48,11 @@ public class RedactorController {
     // ===================== PANEL PRINCIPAL =====================
 
     @GetMapping("/panel")
-    public String panel(Authentication authentication, Model model) {
+    public String panel(@RequestParam(required = false) String buscar, Authentication authentication, Model model) {
         Usuario autor = usuarioService.buscarPorNombreUsuario(authentication.getName());
-        List<Publicacion> publicaciones = publicacionService.obtenerPublicacionesDeAutor(autor);
+        List<Publicacion> publicaciones = publicacionService.buscarPublicacionesDeAutor(autor, buscar);
         model.addAttribute("publicaciones", publicaciones);
+        model.addAttribute("buscar", buscar);
         return "redactor/panel";
     }
 

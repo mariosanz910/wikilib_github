@@ -1,7 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
-      lang="es">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
 
 <head>
     <meta charset="UTF-8">
@@ -11,7 +9,6 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 
     <style>
-
         table {
             width: 100%;
             border-collapse: collapse;
@@ -19,7 +16,8 @@
             background-color: white;
         }
 
-        th, td {
+        th,
+        td {
             border: 1px solid #ddd;
             padding: 14px;
             text-align: left;
@@ -125,126 +123,143 @@
             text-decoration: underline;
         }
 
+        /* FORMULARIO BÚSQUEDA */
+        .search-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-form input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .search-form input:focus {
+            outline: none;
+            border-color: #111;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
     </style>
 
 </head>
 
 <body>
 
-<div class="container">
-
-    <div class="header">
-
-        <h1>Panel del Redactor</h1>
-
-        <div class="top-buttons">
-            <a href="/catalogo" class="btn">Ver catálogo</a>
-            <a href="/logout" class="btn btn-danger">Cerrar sesión</a>
-        </div>
-
-    </div>
-
-    <p>
-        Bienvenido,
-        <strong sec:authentication="name">Redactor</strong>
-    </p>
-
-    <div style="margin-top: 30px;">
+    <div class="container">
 
         <div class="header">
 
-            <h2>Tus Publicaciones</h2>
+            <h1>Panel del Redactor</h1>
 
             <div class="top-buttons">
-
-                <a href="/redactor/mis-series" class="btn">
-                    Mis Colecciones
-                </a>
-
-                <a href="/redactor/nueva-publicacion" class="btn">
-                    + Crear publicación
-                </a>
-
+                <a href="/catalogo" class="btn">Ver catálogo</a>
+                <a href="/logout" class="btn btn-danger">Cerrar sesión</a>
             </div>
 
         </div>
 
-        <div th:if="${publicaciones.isEmpty()}">
-            <p class="alert">
-                No tienes publicaciones aún. ¡Anímate a escribir!
-            </p>
-        </div>
+        <p>
+            Bienvenido,
+            <strong sec:authentication="name">Redactor</strong>
+        </p>
 
-        <table th:unless="${publicaciones.isEmpty()}">
+        <div style="margin-top: 30px;">
 
-            <thead>
-            <tr>
-                <th>Título</th>
-                <th>Categoría</th>
-                <th>Fecha</th>
-                <th>Acciones</th>
-            </tr>
-            </thead>
+            <div class="header">
 
-            <tbody>
+                <h2>Tus Publicaciones</h2>
 
-            <tr th:each="pub : ${publicaciones}">
+                <div class="top-buttons">
 
-                <td>
-                    <a th:href="@{/publicacion/{id}(id=${pub.id})}"
-                       th:text="${pub.titulo}">
-                        Título
+                    <a href="/redactor/mis-series" class="btn">
+                        Mis Colecciones
                     </a>
-                </td>
 
-                <td th:text="${pub.categoria != null ? pub.categoria.nombre : '-'}">
-                    -
-                </td>
+                    <a href="/redactor/nueva-publicacion" class="btn">
+                        + Crear publicación
+                    </a>
 
-                <td th:text="${#temporals.format(pub.fechaCreacion, 'dd/MM/yyyy')}">
-                    Fecha
-                </td>
+                </div>
 
-                <td>
+            </div>
 
-                    <div class="action-buttons">
+            <!-- FORMULARIO BÚSQUEDA -->
+            <form method="get" th:action="@{/redactor/panel}" class="search-form">
+                <input type="text" name="buscar" placeholder="Buscar publicaciones por título..." th:value="${buscar}">
+                <button type="submit" class="btn">Buscar</button>
+                <a href="/redactor/panel" class="btn" style="background-color: #666;">Limpiar</a>
+            </form>
 
-                        <a th:href="@{/redactor/editar-publicacion/{id}(id=${pub.id})}"
-                           class="btn">
-                            Editar
-                        </a>
+            <div th:if="${publicaciones.isEmpty()}">
+                <p class="alert">
+                    No tienes publicaciones aún. ¡Anímate a escribir!
+                </p>
+            </div>
 
-                        <form th:action="@{/redactor/eliminar-publicacion/{id}(id=${pub.id})}"
-                              method="post"
-                              onsubmit="return confirm('¿Seguro que quieres eliminar esta publicación?')">
+            <table th:unless="${publicaciones.isEmpty()}">
 
-                            <input type="hidden"
-                                   th:name="${_csrf.parameterName}"
-                                   th:value="${_csrf.token}"/>
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Categoría</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
 
-                            <button type="submit"
-                                    class="btn btn-danger">
-                                Eliminar
-                            </button>
+                <tbody>
 
-                        </form>
+                    <tr th:each="pub : ${publicaciones}">
 
-                    </div>
+                        <td>
+                            <a th:href="@{/publicacion/{id}(id=${pub.id})}" th:text="${pub.titulo}">
+                                Título
+                            </a>
+                        </td>
 
-                </td>
+                        <td th:text="${pub.categoria != null ? pub.categoria.nombre : '-'}">
+                            -
+                        </td>
 
-            </tr>
+                        <td th:text="${#temporals.format(pub.fechaCreacion, 'dd/MM/yyyy')}">
+                            Fecha
+                        </td>
 
-            </tbody>
+                        <td>
 
-        </table>
+                            <div class="action-buttons">
 
+                                <a th:href="@{/redactor/editar-publicacion/{id}(id=${pub.id})}" class="btn">
+                                    Editar
+                                </a>
+
+                                <form th:action="@{/redactor/eliminar-publicacion/{id}(id=${pub.id})}" method="post"
+                                    onsubmit="return confirm('¿Seguro que quieres eliminar esta publicación?')">
+
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                                    <button type="submit" class="btn btn-danger">
+                                        Eliminar
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
-</div>
-
-<div th:insert="fragments/footer :: footer"></div>
+    <div th:insert="fragments/footer :: footer"></div>
 
 </body>
-</html>
 
+</html>

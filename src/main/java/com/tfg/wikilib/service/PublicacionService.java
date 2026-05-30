@@ -1,6 +1,7 @@
 package com.tfg.wikilib.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -8,10 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tfg.wikilib.model.Publicacion;
-import com.tfg.wikilib.model.Usuario;
 import com.tfg.wikilib.model.Serie;
+import com.tfg.wikilib.model.Usuario;
 import com.tfg.wikilib.repository.PublicacionRepository;
-import java.util.Optional;
 
 @Service
 public class PublicacionService {
@@ -95,5 +95,13 @@ public class PublicacionService {
     public Optional<Publicacion> obtenerAnteriorEnSerie(Publicacion actual) {
         if (actual.getSerie() == null || actual.getOrden() == null) return Optional.empty();
         return publicacionRepository.findFirstBySerieAndOrdenLessThanOrderByOrdenDesc(actual.getSerie(), actual.getOrden());
+    }
+
+    // Buscar publicaciones del autor por título
+    public List<Publicacion> buscarPublicacionesDeAutor(Usuario autor, String filtro) {
+        if (filtro == null || filtro.trim().isEmpty()) {
+            return publicacionRepository.findByAutorOrderByFechaCreacionDesc(autor);
+        }
+        return publicacionRepository.findByAutorAndTituloContainingIgnoreCaseOrderByFechaCreacionDesc(autor, filtro);
     }
 }

@@ -1,6 +1,7 @@
 package com.tfg.wikilib.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -8,9 +9,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.tfg.wikilib.model.Publicacion;
-import com.tfg.wikilib.model.Usuario;
 import com.tfg.wikilib.model.Serie;
-import java.util.Optional;
+import com.tfg.wikilib.model.Usuario;
 
 @Repository
 public interface PublicacionRepository extends JpaRepository<Publicacion, Long> {
@@ -32,6 +32,10 @@ public interface PublicacionRepository extends JpaRepository<Publicacion, Long> 
 
     // Navegación en series
     List<Publicacion> findBySerieOrderByOrdenAsc(Serie serie);
+
+    // Búsqueda combinada para panel del redactor (sin paginar)
+    List<Publicacion> findByAutorAndTituloContainingIgnoreCaseOrderByFechaCreacionDesc(Usuario autor, String titulo);
+
     
     Optional<Publicacion> findFirstBySerieAndOrdenGreaterThanOrderByOrdenAsc(Serie serie, Integer orden);
     
