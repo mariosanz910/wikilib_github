@@ -223,7 +223,7 @@
         <div th:unless="${publicaciones.isEmpty()}">
             <!-- Información de paginación -->
             <div class="pagination-info">
-                Mostrando <strong th:text="${publicaciones.size()}"></strong> de 
+                Mostrando <strong th:text="${publicaciones.size()}"></strong> de
                 <strong th:text="${totalElements}"></strong> publicaciones
                 <span th:if="${totalPages > 1}">(Página <strong th:text="${currentPage + 1}"></strong> de <strong th:text="${totalPages}"></strong>)</span>
                 <span th:if="${ocultarLeidas}" style="color: #888;"> &middot; Leídas ocultas</span>
@@ -239,10 +239,22 @@
             </div>
 
             <!-- PAGINACIÓN -->
+            <!--
+                IMPORTANTE: los parámetros booleanos se pasan con operador ternario (?:).
+                Cuando el valor es false se pasa null, y Thymeleaf OMITE los parámetros null de la URL.
+                Esto evita que se genere "favoritos=false" o "ocultarLeidas=false",
+                lo cual causaría un error de conversión en el controller.
+            -->
             <div class="pagination" th:if="${totalPages > 1}">
                 <!-- Botón Anterior -->
-                <a th:if="${hasPrevious}" 
-                   th:href="@{/catalogo(page=${currentPage - 1}, buscar=${buscar}, categoria=${categoriaSeleccionada}, favoritos=${favoritosSeleccionado}, ocultarLeidas=${ocultarLeidas})}"
+                <a th:if="${hasPrevious}"
+                   th:href="@{/catalogo(
+                       page=${currentPage - 1},
+                       buscar=${buscar},
+                       categoria=${categoriaSeleccionada},
+                       favoritos=${favoritosSeleccionado ? true : null},
+                       ocultarLeidas=${ocultarLeidas ? true : null}
+                   )}"
                    class="btn btn-sm">
                     ← Anterior
                 </a>
@@ -250,22 +262,33 @@
 
                 <!-- Números de página -->
                 <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-                    <!-- Mostrar solo 5 páginas alrededor de la actual -->
                     <th:block th:if="${i >= currentPage - 2 && i <= currentPage + 2}">
-                        <a th:if="${i != currentPage}" 
-                           th:href="@{/catalogo(page=${i}, buscar=${buscar}, categoria=${categoriaSeleccionada}, favoritos=${favoritosSeleccionado}, ocultarLeidas=${ocultarLeidas})}"
+                        <a th:if="${i != currentPage}"
+                           th:href="@{/catalogo(
+                               page=${i},
+                               buscar=${buscar},
+                               categoria=${categoriaSeleccionada},
+                               favoritos=${favoritosSeleccionado ? true : null},
+                               ocultarLeidas=${ocultarLeidas ? true : null}
+                           )}"
                            th:text="${i + 1}">
                         </a>
                         <span th:unless="${i != currentPage}" class="active" th:text="${i + 1}"></span>
                     </th:block>
-                    <!-- Mostrar "..." si hay salto de páginas -->
+                    <!-- "..." si hay salto de páginas -->
                     <span th:if="${i == currentPage - 3 && currentPage > 3}">...</span>
                     <span th:if="${i == currentPage + 3 && currentPage < totalPages - 4}">...</span>
                 </th:block>
 
                 <!-- Botón Siguiente -->
-                <a th:if="${hasNext}" 
-                   th:href="@{/catalogo(page=${currentPage + 1}, buscar=${buscar}, categoria=${categoriaSeleccionada}, favoritos=${favoritosSeleccionado}, ocultarLeidas=${ocultarLeidas})}"
+                <a th:if="${hasNext}"
+                   th:href="@{/catalogo(
+                       page=${currentPage + 1},
+                       buscar=${buscar},
+                       categoria=${categoriaSeleccionada},
+                       favoritos=${favoritosSeleccionado ? true : null},
+                       ocultarLeidas=${ocultarLeidas ? true : null}
+                   )}"
                    class="btn btn-sm">
                     Siguiente →
                 </a>
@@ -286,30 +309,30 @@
         <div class="section-box">
             <h3>Buscador de Recomendaciones</h3>
             <p>Cuéntanos qué te interesa y obtén recomendaciones personalizadas.</p>
-            
+
             <div class="search-box">
                 <input type="text" id="preferenciaInput" placeholder="Ej: Programación, Historia...">
                 <button type="button" id="btnRecomendacion" class="btn">Buscar</button>
             </div>
-            
+
             <div id="loadingRecomendacion" class="loading-box">
                 Buscando recomendaciones...
             </div>
-            
+
             <div id="resultadoRecomendacion" class="result-box">
                 <div id="recomendacionTexto"></div>
             </div>
-            
+
             <div id="errorRecomendacion" class="error-box">
                 <div id="errorTexto"></div>
             </div>
         </div>
 
         <!-- HISTORIAL DE RECOMENDACIONES -->
-        <div th:if="${!historialRecomendaciones.isEmpty()}" class="section-box">
+        <div th:if="${historialRecomendaciones != null && !historialRecomendaciones.isEmpty()}" class="section-box">
             <h3>Historial de Búsquedas</h3>
             <p>Tus últimas 3 recomendaciones</p>
-            
+
             <div th:each="historial : ${historialRecomendaciones}" class="history-item">
                 <strong>Buscaste: </strong><span th:text="${historial.preferencia}"></span>
                 <div class="date" th:text="${#temporals.format(historial.fechaBusqueda, 'dd/MM/yyyy HH:mm')}"></div>
@@ -320,31 +343,31 @@
         <script>
             document.getElementById('btnRecomendacion').addEventListener('click', function() {
                 const preferencia = document.getElementById('preferenciaInput').value.trim();
-                
+
                 if (!preferencia) {
                     alert('Por favor escribe qué te interesa.');
                     return;
                 }
-                
+
                 const loadingDiv = document.getElementById('loadingRecomendacion');
                 const resultDiv = document.getElementById('resultadoRecomendacion');
                 const errorDiv = document.getElementById('errorRecomendacion');
-                
+
                 resultDiv.classList.remove('show');
                 errorDiv.classList.remove('show');
                 loadingDiv.classList.add('show');
-                
+
                 const token = document.querySelector('meta[name="_csrf"]')?.getAttribute('content') || '';
                 const header = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
-                
+
                 const headers = {
                     'Content-Type': 'application/json'
                 };
-                
+
                 if (token) {
                     headers[header] = token;
                 }
-                
+
                 fetch('/api/recomendacion', {
                     method: 'POST',
                     headers: headers,
@@ -353,7 +376,7 @@
                 .then(response => response.json())
                 .then(data => {
                     loadingDiv.classList.remove('show');
-                    
+
                     if (data.exito) {
                         document.getElementById('recomendacionTexto').textContent = data.recomendacion;
                         resultDiv.classList.add('show');
@@ -368,7 +391,7 @@
                     errorDiv.classList.add('show');
                 });
             });
-            
+
             document.getElementById('preferenciaInput').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     document.getElementById('btnRecomendacion').click();

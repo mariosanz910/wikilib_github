@@ -76,11 +76,20 @@ public class HomeController {
     @GetMapping("/catalogo")
     public String catalogo(@RequestParam(required = false) String buscar,
                            @RequestParam(required = false) Long categoria,
-                           @RequestParam(required = false) boolean favoritos,
-                           @RequestParam(required = false) boolean ocultarLeidas,
+                           // String en lugar de boolean para evitar errores de conversión
+                           // con valores "on" (checkbox) y "true" (links de paginación)
+                           @RequestParam(required = false) String favoritos,
+                           @RequestParam(required = false) String ocultarLeidas,
                            @RequestParam(defaultValue = "0") int page,
                            Authentication authentication,
                            Model model) {
+
+        // Convertir los parámetros String a boolean manualmente.
+        // "on"   → checkbox marcado (envío de formulario HTML)
+        // "true" → link de paginación generado por Thymeleaf
+        // cualquier otro valor (null, "", "false") → false
+        boolean favoritesFlag = "true".equals(favoritos) || "on".equals(favoritos);
+        boolean ocultarLeidasFlag = "true".equals(ocultarLeidas) || "on".equals(ocultarLeidas);
 
         // Validar que page sea >= 0
         if (page < 0) {
@@ -93,7 +102,7 @@ public class HomeController {
         Page<Publicacion> pagePublicaciones;
 
         // Obtener IDs leídas si procede
-        boolean filtrarLeidas = ocultarLeidas && authentication != null && authentication.isAuthenticated();
+        boolean filtrarLeidas = ocultarLeidasFlag && authentication != null && authentication.isAuthenticated();
         List<Long> idsLeidas = List.of();
         if (filtrarLeidas) {
             Usuario usuario = usuarioService.buscarPorNombreUsuario(authentication.getName());
@@ -103,11 +112,10 @@ public class HomeController {
             }
         }
 
-        if (favoritos && authentication != null && authentication.isAuthenticated()) {
+        if (favoritesFlag && authentication != null && authentication.isAuthenticated()) {
             // Favoritos: se cargan sin paginar (lista personal)
             Usuario usuario = usuarioService.buscarPorNombreUsuario(authentication.getName());
             List<Publicacion> publicacionesFavoritas = publicacionService.buscarFavoritos(usuario);
-            model.addAttribute("favoritosSeleccionado", true);
 
             // Filtrar leídas en memoria si está activo
             if (filtrarLeidas) {
@@ -149,7 +157,10 @@ public class HomeController {
         model.addAttribute("page", pagePublicaciones);
         model.addAttribute("publicaciones", pagePublicaciones.getContent());
         model.addAttribute("categorias", categoriaService.obtenerTodas());
-        model.addAttribute("ocultarLeidas", ocultarLeidas);
+
+        // Pasar los flags booleanos reales a la vista (para los links de paginación y checkboxes)
+        model.addAttribute("favoritosSeleccionado", favoritesFlag);
+        model.addAttribute("ocultarLeidas", ocultarLeidasFlag);
 
         // Datos útiles para la vista
         model.addAttribute("totalPages", pagePublicaciones.getTotalPages());
@@ -202,7 +213,7 @@ public class HomeController {
         if (publicacion.getSerie() != null) {
             Optional<Publicacion> anterior = publicacionService.obtenerAnteriorEnSerie(publicacion);
             Optional<Publicacion> siguiente = publicacionService.obtenerSiguienteEnSerie(publicacion);
-            
+
             anterior.ifPresent(p -> model.addAttribute("publicacionAnterior", p));
             siguiente.ifPresent(p -> model.addAttribute("publicacionSiguiente", p));
         }
@@ -215,12 +226,12 @@ public class HomeController {
             @RequestBody Map<String, String> body,
             Authentication authentication) {
         String preferencia = body.getOrDefault("preferencia", "").trim();
-        
+
         Usuario usuario = null;
         if (authentication != null && authentication.isAuthenticated()) {
             usuario = usuarioService.buscarPorNombreUsuario(authentication.getName());
         }
-        
+
         return ResponseEntity.ok(recomendacionService.obtenerRecomendacion(preferencia, usuario));
     }
 }
